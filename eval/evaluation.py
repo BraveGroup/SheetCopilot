@@ -1,4 +1,4 @@
-from utils import compare_workbooks
+from compare_sheets import compare_workbooks
 import tqdm
 import yaml
 import pandas as pd
@@ -8,37 +8,12 @@ import numpy as np
 from datetime import datetime
 import argparse
 
-DEBUG = False
-USE_NO_AND_SHEETNAME = True
+def evaluate(save_path, repeat_num):
+    dataset_dir = "../dataset"
+    task_path = os.path.join(dataset_dir, "dataset.xlsx")
+    gt_path = os.path.join(dataset_dir, "task_sheet_answers")
 
-def calculate_detailed_statistics(eval_results_file):
-    with open(eval_results_file, "r") as f:
-        eval_results = yaml.load(f, yaml.Loader)["check_result_each_repeat"]
-
-    # Show the execution success rate, pass@1, median action number, 90-percentile aciton number
-    for repeat_id, eval_result in eval_results.items():
-        checked_cnt = eval_result["checked_list"]
-        total = len(checked_cnt)
-        exec_success_list = eval_result["exec_success_list"]
-        success_list = eval_result["success_list"]
-        gt_min_action_cnt_list = eval_result["gt_min_action_cnt_list"]
-        query_cnt_list = eval_result["query_cnt_list"]
-        action_cnt_list = eval_result["action_cnt_list"]
-
-        print("Repeat {} eval results:".format(repeat_id+1))
-        print("Exec@1: {:.1f}".format(len(exec_success_list) / total * 100))
-        print("Pass@1: {:.1f}".format(len(success_list) / total * 100))
-
-        # Calculate the median of the normalzied number of taken actions (including the actions causing system exceptions)
-        print("A50: {:.2f}".format(np.median(np.array(gt_min_action_cnt_list) / np.maximum(np.array(action_cnt_list), np.array(gt_min_action_cnt_list)))))
-        print("A90: {:.2f}".format(np.percentile(np.array(gt_min_action_cnt_list) / np.maximum(np.array(action_cnt_list), np.array(gt_min_action_cnt_list)), 90)))
-        # print("Q50: {:.2f}".format(np.median(np.array(query_cnt_list) / np.array(gt_min_action_cnt_list))))
-
-def evaluate(config):
-    task_path = config['path']['task_path']
-    gt_path = config['path']['gt_path']
-    save_path = config['path']['save_path']
-    eval_result_path = os.path.join(config['path']['save_path'], 'eval_result.yaml')
+    eval_result_path = os.path.join(save_path, 'eval_result1.yaml')
 
     if os.path.exists(eval_result_path):
         with open(eval_result_path, 'r') as f:
@@ -50,7 +25,7 @@ def evaluate(config):
 
     print("\033[0;36;40m========================================================\nEvaluate task result: {}\033[0m\n".format(save_path))
     
-    for repeat_id in range(1, config["repeat"] + 1):
+    for repeat_id in range(1, repeat_num + 1):
         t = time.time()
         if eval_result["check_result_each_repeat"].get(repeat_id, None) is None:
             eval_result["check_result_each_repeat"][repeat_id] = {
@@ -69,24 +44,21 @@ def evaluate(config):
 
         check_result = eval_result["check_result_each_repeat"][repeat_id]
 
-        remaining_task_cnt = len(task_df.iloc[:]) - len(check_result["checked_list"])
-
+        # number of tasks to evaluate
         num_tasks = len([x for x in os.listdir(save_path) if os.path.isdir(os.path.join(save_path, x))])
+
+        remaining_task_cnt = max(0, num_tasks - len(check_result["checked_list"]))
+        
         with tqdm.tqdm(total=remaining_task_cnt, desc=f"Processing the remaining {remaining_task_cnt}/{num_tasks} results of repeat {repeat_id}") as pbar:
             for index, row in task_df.iloc[:].iterrows():
-                if index + 1 in check_result["checked_list"]: continue
-                if DEBUG and index % 30 != 0: continue
-
                 # Result file
-                if USE_NO_AND_SHEETNAME:
-                    task_name = f"{row['No.']}_{row['Sheet Name']}"
-                else:
-                    task_name = f"{index + 1}_{row['Sheet Name']}"
-                
+                task_name = f"{row['No.']}_{row['Sheet Name']}"
+
+                if task_name in check_result["checked_list"]: continue
+
                 task_path = os.path.join(save_path, task_name)
                 if not os.path.exists(task_path):
                     continue
-                # res_path = os.path.join(task_path, f"{task_name}_{repeat_id}.xlsx")
                 res_path = os.path.join(task_path, f"{task_name}_{repeat_id}.xlsx") #Claude
 
                 # Load the running log of the task
@@ -102,15 +74,11 @@ def evaluate(config):
                 equal = len([x for x in os.listdir(task_path) if x.endswith('.xlsx') and "source" not in x]) == log["Success Count"]
 
                 if log["Success Count"] > 0 and res_file_exists and equal:
-                    if USE_NO_AND_SHEETNAME:
-                        check_result["exec_success_list"].append(task_name)
-                    else:
-                        check_result["exec_success_list"].append(index+1)
+                    check_result["exec_success_list"].append(task_name)
 
                 if os.path.exists(log_file) and 'conditional' not in row['Atomic actions'].lower() and res_file_exists and equal:
                     # Compare the result with all reference solutions.
-                    # All reference solutions for one sheet is placed under a folder with the same name.
-                    # gt_folder_this_task = os.path.join(gt_path, row['Sheet Name'], f"{row['No.']}_{row['Sheet Name']}")
+                    # All reference solutions for one task is placed under a folder with the same name.
 
                     # Load GTs
                     gt_folder_this_task = os.path.join(gt_path, row['Sheet Name'], f"{row['No.']}_{row['Sheet Name']}")
@@ -128,22 +96,13 @@ def evaluate(config):
                         
                         """
                         Comparing.......
-                        Comparing..............
-                        Comparing.....................
                         """
                         check_res = compare_workbooks(gt, res_path, check_board["check_board"])
-                        """
-                        Comparing.....................
-                        Comparing..............
-                        Comparing.......
-                        """
+
 
                         # If checking is successful
                         if check_res[1] and len(log["Success Response"]) > 0:
-                            if USE_NO_AND_SHEETNAME:
-                                check_result["success_list"].append(task_name)
-                            else:
-                                check_result["success_list"].append(index+1)
+                            check_result["success_list"].append(task_name)
 
                             # Count actions
                             num_acts = 0
@@ -171,7 +130,7 @@ def evaluate(config):
                                 if content.startswith("Step"):
                                     query_wo_retry_set.add(content[:content.find(".")])
                             
-                            query_wo_retry_cnt = len(query_wo_retry_set)  + 1 # step + 1 (Done)
+                            query_wo_retry_cnt = len(query_wo_retry_set)  + 1 # step + 1 represents the last response "Done!"
 
                             check_result["query_wo_retry_cnt_list"].append(query_wo_retry_cnt)
                             assert check_result["query_wo_retry_cnt_list"][-1] <= check_result["query_cnt_list"][-1], f"{final_context_log_file} error"
@@ -181,22 +140,19 @@ def evaluate(config):
                             check_result["gt_min_action_cnt_list"].append(len(gt_actions))
                             check_result["matched_gt_lst"].append(gt_file)
                             break
-                    else:
-                        # print(f"Check error: {index+1}_{row['Sheet Name']}")
-                        # print(check_res[0])
-                        pass
 
                     with open(eval_result_path, 'w') as f:
                         yaml.dump(eval_result, f)
                 
-                if USE_NO_AND_SHEETNAME:
-                    check_result["checked_list"].append(task_name)
-                else:
-                    check_result["checked_list"].append(index+1)
+                check_result["checked_list"].append(task_name)
+
                 pbar.update(1)
 
         print("\033[0;33;40mEvaluation for Repeat {} has finished. Time elapse: {:.2f}s\033[0m".format(repeat_id, time.time() - t))
-        print("Error Log: {}\n".format('\n'.join(x for x in check_result["error_log"])))
+
+        if len(check_result["error_log"]) > 0:
+            print("Error Log: {}\n".format('\n'.join(x for x in check_result["error_log"])))
+        
         exec_success_cnt, success_cnt, total = len(check_result["exec_success_list"]), len(check_result["success_list"]), len(check_result["checked_list"])
         action_cnt_list, gt_min_action_cnt_list = np.array(check_result["action_cnt_list"]), np.array(check_result["gt_min_action_cnt_list"])
         query_cnt_list, query_wo_retry_cnt_list =  np.array(check_result["query_cnt_list"]), np.array(check_result["query_wo_retry_cnt_list"])
@@ -207,21 +163,13 @@ def evaluate(config):
 
         # Action statistics
         check_result["eval_results"]["A_mean"] = np.mean(action_cnt_list).item()
-        check_result["eval_results"]["A50"] = np.median(action_cnt_list).item()
-        check_result["eval_results"]["A90"] = np.percentile(action_cnt_list, 90).item()
-        check_result["eval_results"]["A50_norm_invers"] = np.median(gt_min_action_cnt_list / np.maximum(action_cnt_list, gt_min_action_cnt_list)).item()
-        check_result["eval_results"]["A90_norm_invers"] = np.percentile(gt_min_action_cnt_list / np.maximum(action_cnt_list, gt_min_action_cnt_list), 90).item()
-        check_result["eval_results"]["A50_norm"] = np.median(action_cnt_list / gt_min_action_cnt_list).item()
-        check_result["eval_results"]["A90_norm"] = np.percentile(action_cnt_list / gt_min_action_cnt_list, 90).item()
+        check_result["eval_results"]["A50"] = np.median(action_cnt_list / gt_min_action_cnt_list).item()
+        check_result["eval_results"]["A90"] = np.percentile(action_cnt_list / gt_min_action_cnt_list, 90).item()
 
         # Query statistics
         check_result["eval_results"]["Q_mean"] = np.mean(query_cnt_list).item()
-        check_result["eval_results"]["Q50"] = np.median(query_cnt_list).item()
-        check_result["eval_results"]["Q90"] = np.percentile(query_cnt_list, 90).item()
-        # check_result["eval_results"]["Q50_norm_invers"] = np.median(gt_min_action_cnt_list / np.maximum(action_cnt_list, gt_min_action_cnt_list)).item()
-        # check_result["eval_results"]["Q90_norm_invers"] = np.percentile(gt_min_action_cnt_list / np.maximum(action_cnt_list, gt_min_action_cnt_list), 90).item()
-        check_result["eval_results"]["Q50_norm"] = np.median(query_cnt_list / query_wo_retry_cnt_list).item()
-        check_result["eval_results"]["Q90_norm"] = np.percentile(query_cnt_list / query_wo_retry_cnt_list, 90).item()
+        check_result["eval_results"]["Q50"] = np.median(query_cnt_list / query_wo_retry_cnt_list).item()
+        check_result["eval_results"]["Q90"] = np.percentile(query_cnt_list / query_wo_retry_cnt_list, 90).item()
 
         for k, v in check_result["eval_results"].items():
             print("{}: {}".format(k, v))
@@ -235,13 +183,10 @@ def evaluate(config):
     print("{} have been evaluated ... . Time: {}".format(save_path, datetime.now().strftime("%H:%M:%S")))
 
 parser = argparse.ArgumentParser(description='Process config.')
-parser.add_argument('--config', '-c', default="./config/missing_actions.yaml", type=str, help='path to config file')
+parser.add_argument('--result_dir', '-d', default="../results", type=str, help='path to the results folder')
+parser.add_argument('--repeat_num', '-r', default=1, type=int, help='repeat numbers of each task')
 args = parser.parse_args()
 
 if __name__ == '__main__':
-    # parse conmand line arguments
-    with open(args.config, 'r') as f:
-        config = yaml.load(f, Loader=yaml.Loader)
-    evaluate(config)
-    print("Evaluate {}".format(config["path"]["save_path"]))
-    # calculate_detailed_statistics(os.path.join(config["path"]["save_path"], "eval_result.yaml"))
+    evaluate(args.result_dir, args.repeat_num)
+    print("Evaluate {}".format(args.result_dir))
