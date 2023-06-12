@@ -95,6 +95,9 @@ Coming soon...
 
 ## For Google Sheets
 
+## Which aspects of a spreadsheet can SheetCopilot control
+
+
 # Citation
 SheetCopilot and the dataset can only be used for non-conmercial purposes.
 
