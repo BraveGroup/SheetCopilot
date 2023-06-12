@@ -85,70 +85,25 @@ The evaluation results will be recorded in a file named ```eval_result.yaml``` u
 
 The evaluation can restart from a checkpoint if it has been aborted.
 
-<!-- <table>
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-      <th>backbone</th>
-      <th>schedule</th>
-      <th>inf_time</th>
-      <th>box AP</th>
-      <th>url</th>
-      <th>size</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>DETR</td>
-      <td>R50</td>
-      <td>500</td>
-      <td>0.036</td>
-      <td>42.0</td>
-      <td><a href="https://dl.fbaipublicfiles.com/detr/detr-r50-e632da11.pth">model</a>&nbsp;|&nbsp;<a href="https://dl.fbaipublicfiles.com/detr/logs/detr-r50_log.txt">logs</a></td>
-      <td>159Mb</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>DETR-DC5</td>
-      <td>R50</td>
-      <td>500</td>
-      <td>0.083</td>
-      <td>43.3</td>
-      <td><a href="https://dl.fbaipublicfiles.com/detr/detr-r50-dc5-f0fb7ef5.pth">model</a>&nbsp;|&nbsp;<a href="https://dl.fbaipublicfiles.com/detr/logs/detr-r50-dc5_log.txt">logs</a></td>
-      <td>159Mb</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>DETR</td>
-      <td>R101</td>
-      <td>500</td>
-      <td>0.050</td>
-      <td>43.5</td>
-      <td><a href="https://dl.fbaipublicfiles.com/detr/detr-r101-2c7b67e5.pth">model</a>&nbsp;|&nbsp;<a href="https://dl.fbaipublicfiles.com/detr/logs/detr-r101_log.txt">logs</a></td>
-      <td>232Mb</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>DETR-DC5</td>
-      <td>R101</td>
-      <td>500</td>
-      <td>0.097</td>
-      <td>44.9</td>
-      <td><a href="https://dl.fbaipublicfiles.com/detr/detr-r101-dc5-a2e86def.pth">model</a>&nbsp;|&nbsp;<a href="https://dl.fbaipublicfiles.com/detr/logs/detr-r101-dc5_log.txt">logs</a></td>
-      <td>232Mb</td>
-    </tr>
-  </tbody>
-</table>
- -->
-
 
 # SheetCopilot Usage
+
+Firt of all, an OpenAI API key is required.
+
+## For Excel
 Coming soon...
 
-# License
-SheetCopilot and the dataset can only be used for academic purposes.
+## For Google Sheets
 
-Released under the Apache 2.0 license. Please see the [LICENSE](LICENSE) file for more information.
+# Citation
+SheetCopilot and the dataset can only be used for non-conmercial purposes.
 
+If you use the SheetCopilot framework or data, feel free to cite us.
+
+```bibtex
+@misc{li2023sheetcopilot,
+  title={SheetCopilot: Bringing Software Productivity to the Next Level through Large Language Models},
+  author={Hongxin Li and Jingran Su and Yuntao Chen and Qing Li and Zhaoxiang Zhang},
+  journal={arXiv preprint arXiv:2305.19308},
+  year={2023}
+}
