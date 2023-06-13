@@ -20,12 +20,12 @@ SheetCopilot is an assistant agent that manipulate spreadsheets by following use
 SheetCopilot employs a novel way of directing Large Language Models (LLMs) to manipulate spreadsheets like a human expert. To achieve elegant closed-loop control, SheetCopilot observes the spreadsheet state and polishes generated solutions according to external action documents and error feedback, thereby improving its success rate and efficiency.
 
 <p align="center">
-<img src="assets/SheetCopilot-teaser.png" width="5100%">
+<img src="assets/SheetCopilot-teaser.png" width="100%">
 </p>
 <br>
 
 # Setup
-## 1. Prepare the Conda environment
+### 1. Prepare the Conda environment
 
 Python 3.10 is required to support the asyncronous implementation of SheetCopilot.
 
@@ -33,7 +33,7 @@ Python 3.10 is required to support the asyncronous implementation of SheetCopilo
 conda create -n habitat python=3.10
 ```
 
-## 2. In this conda env, run:
+### 2. In this conda env, run:
 
 ```
 pip install -r requirements.txt
@@ -42,6 +42,13 @@ pip install -r requirements.txt
 
 # Dataset
 We release a spreadsheet task dataset containing 28 workbooks and 221 tasks applied to these workbooks. Each task is given one or more hand-made solutions.
+
+Here is the overview of the dataset:
+
+<p align="center">
+<img src="assets/two_clouds.png" width="85%">
+</p>
+<br/>
 
 This dataset can be used to evaluate any spreadsheet manipulation agent including RL, LLM-based or rule-based methods.
 
@@ -85,6 +92,7 @@ The evaluation results will be recorded in a file named ```eval_result.yaml``` u
 
 The evaluation can restart from a checkpoint if it has been aborted.
 
+NOTE that every new sheet must be created to the left of the very first sheet for correct matching with the references since sheet names are not to be checked.
 
 # SheetCopilot Usage
 
