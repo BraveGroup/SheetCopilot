@@ -134,6 +134,14 @@ Coming soon...
 
 (More operations will be added once the developers finish testing them. Besides, you can raise issues to ask for more supported operations or pull request to contribute your implementations.) 
 
+## Demo
+
+This video shows that a user can chat with SheetCopilot to complete complex sheet work smoothly.
+
+[![ See the magic of SheetCopilot on Google Sheets - Control your sheets like chatting ](https://res.cloudinary.com/marcomontalbano/image/upload/v1686982272/video_to_markdown/images/youtube--69Qu7v55fBY-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://youtu.be/69Qu7v55fBY " See the magic of SheetCopilot on Google Sheets - Control your sheets like chatting ")
+
+<br/>
+
 # Citation
 SheetCopilot and the dataset can only be used for non-conmercial purposes.
 
