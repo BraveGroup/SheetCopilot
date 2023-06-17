@@ -41,7 +41,7 @@ pip install -r requirements.txt
 
 
 # Dataset
-We release a spreadsheet task dataset containing 28 workbooks and 221 tasks applied to these workbooks. Each task is given one or more hand-made solutions.
+We release a spreadsheet task dataset (v1) containing 28 workbooks and 221 tasks applied to these workbooks. Each task is given one or more hand-made solutions.
 
 Here is the overview of the dataset:
 
@@ -52,7 +52,7 @@ Here is the overview of the dataset:
 
 This dataset can be used to evaluate any spreadsheet manipulation agent including RL, LLM-based or rule-based methods.
 
-In the ```dataset``` folder, ```dataset.xlsx``` lists the 221 tasks, containing the target workbook name, task number, instruction, task categories, and involved atomic actions.
+In the ```dataset_v1``` folder, ```dataset.xlsx``` lists the 221 tasks, containing the target workbook name, task number, instruction, task categories, and involved atomic actions.
 
 The ```task_sheets``` folder contains the 28 evaluation workbooks these tasks applied to.
 
@@ -94,6 +94,23 @@ The evaluation can restart from a checkpoint if it has been aborted.
 
 NOTE that every new sheet must be created to the left of the very first sheet for correct matching with the references since sheet names are not to be checked.
 
+## Evaluation results
+
+The performaces of SheetCopilot with 3 leading LLMs as its back-end on ```dataset_v1/dataset_20Samples.xlsx```.
+
+| Models        | Exec@1 | Pass@1 | A50  | A90  |
+|---------------|--------|--------|------|------|
+| GPT-3.5-Turbo | 85.0%  | 45.0%  | 2.00 | 4.50 |
+| GPT-4         | 65.0%  | 55.0%  | 1.33 | 2.00 |
+| Claude        | 80.0%  | 40.0%  | 1.50 | 4.40 |
+
+The performaces of SheetCopilot and a VBA-based method on ```dataset_v1/dataset.xlsx```.
+
+| Methods       | Exec@1 | Pass@1 |
+|---------------|--------|--------|
+| GPT-3.5-Turbo | 87.3%  | 44.3%  |
+| VBA-based     | 77.8%  | 37.1%  |
+
 # SheetCopilot Usage
 
 Firt of all, an OpenAI API key is required.
@@ -102,9 +119,20 @@ Firt of all, an OpenAI API key is required.
 Coming soon...
 
 ## For Google Sheets
+Coming soon...
 
 ## Which aspects of a spreadsheet can SheetCopilot control
+(1) Manipulation: Writing values and formulas, deleting cells, inserting a row/column, autofilling, copy-pasting values, find-and-replacing, setting hyperlinks, removing duplicates, creating sheets, clearing formats.
 
+(2) Management: Sorting, filtering, and freezing panes.
+
+(3) Formatting: Setting format and conditional format (font, bold, italic, underline, text color, and fill color), setting data type (date, text, number, currency, time, general, percentage), and merging.
+
+(4) Charts: Creating charts, creating charts from pivot tabls, setting chart title/axis title/legends/chart type/marker/trendline/data labels.
+
+(5) Pivot table: Creating pivot tables.
+
+(More operations will be added once the developers finish testing them. Besides, you can raise issues to ask for more supported operations or pull request to contribute your implementations.) 
 
 # Citation
 SheetCopilot and the dataset can only be used for non-conmercial purposes.
