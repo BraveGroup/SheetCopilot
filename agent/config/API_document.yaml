@@ -1,0 +1,685 @@
+Write:
+  # display: RangeInputValue
+  args: "(range: str, value: str)"
+  args explanation: |
+    range (string): The range to write value into. Here, the range must be a single cell.
+    value (string): The value to be written into the range. The string in value also can be excel formulas. If the string starts with "=", it will be treated as a formula. When using address indexing from another sheet in a formula, if the name of the worksheet contains spaces, the name must be enclosed in single quotes. When using address in formulas, take care of the absolute and relative address, e.g., $A$1, $A1, A$1, A1.
+  usage: Write value into a range. The string in value also can be excel formulas.
+  example: |
+    # Example 1: Write headers for the new column.
+    Write("Sheet2!A1", "Date")
+    Write("Sheet2!B1", "Sales")
+    # Example 2: Write the formula into the cell.
+    Write("Sheet1!A2", "=VLOOKUP('Retail Price'!C2, 'Retail Price'!A:B, 2, FALSE)") # Must single quote the sheet name if it contains spaces.
+    Write("Sheet1!A3", "=SUM(Sheet2!$A$1:$A$20)") # Absolute address.
+    # Example 3: Add a new column after the A column named "Month".
+    InsertColumn("Sheet1", after="A")
+    Write("Sheet1!B1", "Month")
+CopyPaste:
+  # display: ReplicateRange
+  args: "(source: str, destination: str)"
+  args explanation: |
+    source (string): The range to copy from.
+    destination (string): The range to paste into.
+  usage: Copy the source range and paste into the destination range.
+  example: |
+    # Example 1: Copy the range (Sheet1!A1:B6) to the range (Sheet1!D3:E8)
+    CopyPaste("Sheet1!A1:B6", "Sheet1!D3:E8")
+    # After implementing this action, the range (D3:E8) in Sheet1 will contain the same values as the range (A1:B6) in Sheet1.
+    # Example 2: Copy the range (Sheet1!A1:B2) to the range (Sheet2!D1:E2).
+    CopyPaste("Sheet1!A1:B2", "Sheet2!D1:E2")
+    # After implementing this action, the range (D1:E2) in Sheet2 will contain the same values as the range (A1:B2) in the Sheet1.
+CutPaste:
+  args: "(source: str, destination: str)"
+  args explanation: |
+    source (string): The range to cut from.
+    destination (string): The range to paste into.
+  usage: Cut the source range and paste into the destination range.
+  example: |
+    # Example 1: Cut the range (Sheet1!A1:A2) to the range (Sheet1!D3:E8)
+    CutPaste("Sheet1!A1:B6", "Sheet1!D3:E8")
+    # After implementing this action, the value of range (D3:E8) in Sheet1 will be the same as the previous values of the range (A1:B6) in Sheet1, and the range (A1:B6) will be empty.
+    # Example 2: Cut the range (Sheet1!A1:B2) to the range (Sheet2!D1:E2).
+    CutPaste("Sheet1!A1:B2", "Sheet2!D1:E2")
+    # After implementing this action, the value of range (D1:E2) in Sheet2 will be the same as the previous values of the range (A1:B2) in the Sheet1, and the range (A1:B2) in the Sheet1 will be empty.
+# FindReplace:
+#   args: "(source: str, find: str, replace: str)"
+#   args explanation: |
+#     source (string): The range to find and replace.
+#     find (string): The string to find.
+#     replace (string): The string to replace.
+
+#     # Note that the string in find and replace cannot be excel formulas or excel addresses, and it must be a constant string.
+#   usage: Find and replace a string.
+#   example: |
+#     # Example 1: Find "1" and replace it with "2" in the range (A1:B6)
+#     FindReplace("A1:B6", "1", "2")
+#     # Example 2: wrong example
+#     FindReplace("A1:B6", "Retail Price!A1:B2", "A2") # Wrong example: the excel address cannot be used in find and replace.
+SetHyperlink:
+  # display: LinkRangeAssociator
+  args: "(source: str, url: str)"
+  args explanation: |
+    source (string): The range to set hyperlink.
+    url (string): The url to set.
+  usage: Set hyperlink for the source range. The source must be a single cell.
+  example: |
+    # Example 1: Set the hyperlink of one cell
+    SetHyperlink("Sheet1!A1", "https://www.xxx.com")
+    # Example 2: Set the hyperlinks of a series of cells. Each cell is set separately.
+    SetHyperlink("Sheet1!C2", "https://www.xxx.com")
+    SetHyperlink("Sheet1!C3", "https://www.xxx.com")
+    ...
+RemoveHyperlink:
+  args: "(source: str)"
+  args explanation: |
+    source (string): The range to remove hyperlink.
+  usage: Remove the hyperlink for the source range. The source must be a single cell.
+  example: |
+    # Example 1: Delete the hyperlink of one cell
+    RemoveHyperlink("Sheet1!D1")
+# RenameSheet:
+#   args: "(oldName: str, newName: str)"
+#   args explanation: |
+#     oldName (string): The old name of the sheet.
+#     newName (string): The new name of the sheet.
+#   usage: Rename the sheet.
+#   example:
+# WrapText:
+#   args: "(source: str)"
+#   args explanation: |
+#     source (string): The range to wrap text.
+#   usage: Wrap text for the source range.
+#   example:
+AutoFill:
+  # display: RangeValueTransfer
+  args: "(source: str, destination: str)"
+  args explanation: |
+    source (string): The range to auto fill from.
+    destination (string): The range to auto fill into.
+    # The destination must include the source range.
+  usage: Auto fill the destination range with the source range.
+  example: |
+    # Example 1: Autofill down columns
+    AutoFill("Sheet1!A1", "Sheet1!A1:A10")
+Sort:
+  args: "(source: str, key1: str, order: str='asc', orientation: str='column')"
+  args explanation: |
+    source (string): The range to sort.
+    key1 (string): The key to sort by.
+    order (string): The order to sort by. It can be 'asc' or 'desc'.
+    orientation (string): The orientation to sort by. It can be 'column' or 'row'.
+  usage: Sort the source range by key1.
+  example: |
+    # Example 1: Sort the range (A1:E6) in Sheet1 by the first column (i.e. A column) in ascending order.
+    Sort("Sheet1!A2:E6", "Sheet1!A1", "asc", "column") # Exculde the first row (i.e. A1:E1) because it is the header.
+Filter:
+  args: "(source: str, fieldIndex: int, criteria: str)"
+  args explanation: |
+    source (string): The range to filter.
+    fieldIndex (int): The index of the field to filter by, starting from 1. For example, if the range is (A1:B6), and we want to filter by the first column (i.e. A column), then the fieldIndex is 1.
+    criteria (string): The criteria to filter by.
+  usage: Filter the source range based on fieldIndex by criteria.
+  example: |
+    # Example 1: Filter the range (A1:B6) in Sheet1 by the first column (i.e. A column) by the criteria ">=5".
+    Filter(source="Sheet1!A1:B6", fieldIndex=1, criteria=">=5")
+    # After implementing this action, the range (A1:B6) in Sheet1 will only contain the rows whose first column (i.e. A column) is greater than or equal to 5.
+DeleteFilter:
+  args: "()"
+  args explanation: |
+    There is no argument for this action.
+  usage: Delete all filters.
+  example: |
+    # Example 1: Delete all filters in a workbook.
+    DeleteFilter()
+MoveRow:
+  args: "(source: int, destination: int)"
+  args explanation: |
+    source (int): The index of the source row.
+    destination (int): The index of the destination row.
+  usage: Move the source row to the destination row.
+  example: |
+    # Example 1: Move the first row to the third row.
+    MoveRow(1, 3)
+    # After implementing this action, the first row will be the third row, and the second row will be the first row.
+MoveColumn:
+  args: "(source: int, destination: int)"
+  args explanation: |
+    source (int): The index of the source column.
+    destination (int): The index of the destination column.
+  usage: Move the source column to the destination column.
+  example: |
+    # Example 1: Move the first column to the third column.
+    MoveColumn(1, 3)
+    # After implementing this action, the first column will be the third column, and the second column will be the first column.
+RemoveDuplicate:
+  # display: DistinctData
+  args: "(source: str, key: int)"
+  args explanation: |
+    source (string): The range to remove duplicate.
+    key (int): The index of the key to remove duplicate by.
+  usage: Remove duplicate values in the source range based on the key.
+  example: |
+    # Example 1: Remove duplicate values in the range (Sheet1!A1:B6) based on the first column (i.e. A column).
+    RemoveDuplicate("Sheet1!A1:B6", 1)
+    # After implementing this action, the range (A1:B6) will contain unique values based on the first column (i.e. A column).
+    # Example 2: Remove duplicate values in the range (B1:F6) based on the second column (i.e. C column).
+    RemoveDuplicate("Sheet1!B1:F6", 2)
+
+SetFormat:
+  args: "(source: str, font: str = None, fontSize: float = None, color: str = None, fillColor: int = None, bold: bool = None, italic: bool = None, underline: bool = None, horizontalAlignment: str = None)"
+  args explanation: |
+    source (string): The range to set format.
+    font (string): The font to set.
+    fontSize (float): The font size to set.
+    color (string): The color to set. It can be 'black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'dark_red', 'dark_green'.
+    fillColor (string): The fill color to set. It can be 'black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'dark_red', 'dark_green'.
+    bold (bool): Whether to set bold. True means bold, False means not bold.
+    italic (bool): Whether to set italic. True means italic, False means not italic.
+    underline (bool): Whether to set underline. True means underline, False means not underline.
+    horizontalAlignment (string): The horizontal alignment to set. It can be 'left', 'center', 'right'.
+  usage: Set format for the source range. If you want to set data type, please use 'SetDataType' API.
+  example: |
+    # Example 1: Write bold text "Summer sales ($)" with blue fill color and white text color in A1.
+    Write("Sheet1!A1", "Summer sales ($)")
+    SetFormat("Sheet1!A1", bold=True, fillColor="blue", color="white")
+    # After implementing this action, the cell A1 will contain bold text "Summer sales ($)" with blue fill color and white text color.
+    # Example 2: Adjust column C to Arial font with underline.
+    SetFormat("Sheet1!C:C", font="Arial", underline=True)
+    # After implementing this action, the column C will be adjusted to Arial font with underline.
+
+# SetCellFont:
+#   args: "(source: str, font: str = None, fontSize: float = None)"
+#   args explanation: |
+#     source (string): The range to set format.
+#     font (string): The font to set.
+#     fontSize (float): The font size to set.
+#   usage: Set font for the source range.
+#   example: |
+#     # Example 1: Write text "Summer sales ($)" with font size of 20 in A1.
+#     Write("Sheet1!A1", "Summer sales ($)")
+#     SetCellFont("Sheet1!A1", fontSize = 20)
+#     # After implementing this action, the cell A1 will contain text "Summer sales ($)" with font size of 20.
+
+# SetCellColor:
+#   args: "(source: str, color: str = None, fillColor: int = None)"
+#   args explanation: |
+#     source (string): The range to set format.
+#     color (string): The color to set. It can be 'black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'dark_red', 'dark_green'.
+#     fillColor (string): The fill color to set. It can be 'black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'dark_red', 'dark_green'.
+#   usage: Set cell color for the source range.
+#   example: |
+#     # Example 1: Write text "Sales" with white text and green background in B2.
+#     Write("Sheet1!B2", "Sales")
+#     SetCellColor("Sheet1!B2", color = "white", fillColor = "green")
+#     # After implementing this action, the cell B2 will contain white text "Sales" with green fill.
+
+# SetCellFontStyle:
+#   args: "(source: str, bool = None, italic: bool = None)"
+#   args explanation: |
+#     source (string): The range to set format.
+#     bold (bool): Whether to set bold. True means bold, False means not bold.
+#     italic (bool): Whether to set italic. True means italic, False means not italic.
+#   usage: Set cell font style for the source range.
+#   example: |
+#     # Example 1: Write bold text "Names" in D5.
+#     Write("Sheet1!D5", "Names")
+#     SetCellColor("Sheet1!D5", boll = True)
+#     # After implementing this action, the cell D5 will contain bold "Names".
+
+# SetCellEffect:
+#   args: "(source: str, underline: bool = None, horizontalAlignment: str = None)"
+#   args explanation: |
+#     source (string): The range to set format.
+#     underline (bool): Whether to set underline. True means underline, False means not underline.
+#     horizontalAlignment (string): The horizontal alignment to set. It can be 'left', 'center', 'right'.
+#   usage: Set the underline and alignment effects for the source range.
+#   example: |
+#     # Example 1: Write underline text "Summer" aligned to the right in A3.
+#     Write("Sheet1!A3", "Summer")
+#     SetCellEffect("Sheet1!A3", underline=True, horizontalAlignment="right")
+#     # After implementing this action, the cell A3 will contain underlined "Summer" aligned to the right.
+
+DeleteFormat:
+  args: "(source: str)"
+  args explanation: |
+    source (string): The range to delete format.
+  usage: Delete format for the source range.
+  example: |
+    # Example 1: Delete format for the range (A1:B6).
+    DeleteFormat("Sheet1!A1:B6")
+    # After implementing this action, the range (A1:B6) will have the default format.
+
+SetDataType:
+  args: "(source: str, dataType: str)"
+  args explanation: |
+    source (string): The range to set data type.
+    dataType (string): The data type to set. It can be 'date', 'text', 'number', 'currency', 'time', 'general', or 'percentage'.
+  usage: Set data type for the source range.
+  example: |
+    # Example 1: Set data type for the range (A1:B6) to 'date'.
+    SetDataType(source="Sheet1!A2:B6", dataType="date") # Exculde the first row because it is the header.
+    # After implementing this action, the range (A1:B6) will be set to 'date' data type.
+    # Example 2: Create a new column to store the profit.
+    Write("Sheet1!C1", "Profit")
+    Write("Sheet1!C2", "=Sheet1!B2-Sheet1!A2")
+    AutoFill("Sheet1!C2", "Sheet1!C2:C6")
+    SetDataType(source="Sheet1!C:C", dataType="currency")
+
+SetCellMerge:
+  # display: ConcatenateCells
+  args: "(source: str, merge: bool)"
+  args explanation: |
+    source (string): The range to toggle cell merge.
+    merge (bool): Whether to set merge. True means merge, False means unmerge.
+  usage: Toggle cell merge for the source range.
+  example: |
+    # Example 1: Merge the range (Sheet1!A1:B1).
+    SetCellMerge("Sheet1!A1:B1", True)
+    # After implementing this action, the range (A1:B1) will be merged.
+    # Example 2: Unmerge the range (Sheet1!A1:B1).
+    SetCellMerge("Sheet1!A1:B1", False)
+    # After implementing this action, the range (A1:B1) will be unmerged.
+Delete:
+  # display: DiscardRange
+  args: "(source: str, region: str)"
+  args explanation: |
+    source (string): The range to delete.
+    region (string): The region to delete. It can be 'row', 'column', 'range'. 'row' means delete the entire row where the source range is in. 'column' means delete the entire column where the source range is in. 'range' means delete the source range.
+  usage: Deletes a cell or range of cells.
+  example: |
+    # Example 1: Delete the entire row where the range (A1:B1) is in.
+    Delete("Sheet1!A1:B1", "row")
+    # After implementing this action, the row 1 will be deleted.
+    # Example 2: Delete the entire column where the range (A1:B1) is in.
+    Delete("Sheet1!A1:B1", "column")
+    # After implementing this action, the column A and B will be deleted.
+    # Example 3: Delete the range (A1:B1).
+    Delete("Sheet1!A1:B1", "range")
+    # After implementing this action, the range (A1:B1) will be deleted.
+Clear:
+  # display: EraseRangeContents
+  args: "(source: str)"
+  args explanation: |
+    source (string): The range to clear.
+  usage: Clear the content and the formatting of a Range.
+  example: |
+    # Example 1: Clear the range (A1:B1).
+    Clear("Sheet1!A1:B1")
+    # After implementing this action, the range (A1:B1) will be empty.
+InsertRow:
+  # display: NewRowAtIndex
+  args: "(sheetName: str, aboveRow: int = None, belowRow: int = None)"
+  args explanation: |
+    sheetName (string): The name of the sheet to insert row.
+    aboveRow (int): The row above which the new row will be inserted.
+    belowRow (int): The row below which the new row will be inserted.
+  usage: Insert a row at the specified row in the sheet.
+  example: |
+    # Example 1: Insert a row at the index 2 in Sheet1.
+    InsertRow("Sheet1", aboveRow=2) # or InsertRow("Sheet1", belowRow=1)
+    # After implementing this action, a new row will be inserted at the index 2 in Sheet1. The original row 2 will become row 3.
+InsertColumn:
+  # display: ColumnCreation
+  args: "(sheetName: str, beforeColumn: str = None, afterColumn: str = None)"
+  args explanation: |
+    sheetName (string): The name of the sheet to insert column.
+    beforeColumn (string): The column before which the new column will be inserted.
+    afterColumn (string): The column after which the new column will be inserted.
+  usage: Insert a column at the specified column in the sheet.
+  example: |
+    # Example 1: Create a new column at Column G in Sheet1, i.e, after Column F.
+    InsertColumn("Sheet1", afterColumn="F")
+    # The following call is equivalent.
+    InsertColumn("Sheet1", beforeColumn="G")
+    # After implementing this action, a new column will be inserted at Column G in Sheet1. The original Column G will become Column H.
+AutoFit:
+  args: "(source: str)"
+  args explanation: |
+    source (string): The range to auto fit.
+  usage: Auto fit the width and height of all cells in the range.
+  example: |
+    # Example 1: Auto fit the width and height of all cells in the range (A1:B6).
+    AutoFit("Sheet1!A1:B6")
+    # After implementing this action, the width and height of all cells in the range (A1:B6) will be auto fitted.
+ResizeRowColumn:
+  args: "(source: str, width: float = None, height: float = None)"
+  args explanation: |
+    source (string): The range to resize.
+    width (float): The width to resize.
+    height (float): The height to resize.
+  usage: Resize the width and height of all cells in the range.
+  example:
+SetConditionalFormat:
+  args: "(source: str, formula: str, bold: nool = None, color: str = None, fillColor: str = None, italic: bool = None, underline: bool = None)"
+  args explanation: |
+    source (string): The range to set conditional format.
+    formula (string): The excel formula representing the condition. For example, "=A1>B1" means highlight the first cell of the source range if the value in A1 is greater than the value in B1.
+    bold (bool): Whether to set bold. True means bold, False means not bold.
+    color (string): The color to set. It can be 'black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'dark_red', 'dark_green'.
+    fillColor (string): The fill color to set. It can be 'black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'dark_red', 'dark_green'.
+    italic (bool): Whether to set italic. True means italic, False means not italic.
+    underline (bool): Whether to set underline. True means underline, False means not underline.
+  usage: Set conditional format for the source range.
+  example: |
+    # Example 1: Highlight cells A1 to A10 greater than cell D1 with white text and red background.
+    SetConditionalFormat(source='Sheet1!A1:A10', formula='=$A1>$D$1', color="white", fillColor="red")
+    # Absolute reference is used for A1 because iteration is done for rows while the column is fixed. Absolute reference is used for D1 because it is the only target to be compared with.
+    # After implementing this action, the cells in range A1:A10 whose values >= D1 will have white texts and red fill.
+    # Example 2: lf column D contains the letter 'H' highlight the colum F cell texts in yellow. 
+    SetConditionalFormat(source='Sheet1!D2:D', formula='=ISNUMBER(SEARCH("H",$D2))', color="yellow")
+    # Absolute reference is used for D2 because iteration is done for rows while the column is fixed. source starts from D2 because the column header needs to be ignored.
+    # Example 3: Highlight the column B cells in Sheet1 between 2pm and 5pm in bold text. If the time is formatted as Text, TIMEVALUE can be used to convert time to factions. The following API call can be used in this case.
+    SetConditionalFormat(source="Sheet1!B2:B36", formula='=AND(TIMEVALUE($B2)>=TIMEVALUE("14:00:00"),TIMEVALUE($B2)<=TIMEVALUE("17:00:00"))', fillColor="yellow")
+SetDataValidation:
+  args: "(source: str, type: str, formula: str)"
+  args explanation: |
+    source (string): The range to set data validation.
+    type (string): The type of data validation. It can be 'date', 'decimal', 'list', 'textLength', 'time', 'wholeNumber'.
+    formula (string): The data validation equation.
+  usage: Set data validation for the source range.
+  example:
+# ToggleFormulaDisplay:
+#   args: "(display: bool)"
+#   args explanation: |
+#     display (bool): Whether to display formula. True means display, False means not display.
+#   usage: Toggle formula display for current window.
+#   example:
+# SplitPanes:
+#   args: "(row: int, column: int)"
+#   args explanation: |
+#     row (int): The number of horizontal divisions.
+#     column (int): The number of vertical divisions.
+#   usage: Split panes for current window.
+#   example:
+SetCellLock:
+  args: "(source: str, lock: bool)"
+  args explanation: |
+    source (string): The range to toggle cell lock.
+    lock (bool): Whether to lock cell. True means lock, False means unlock.
+  usage: Toggle cell lock for the source range.
+  example:
+# ToggleSheetProtection:
+#   args: "(sheetName: str, protect: bool, password: str = None)"
+#   args explanation: |
+#     sheetName (string): The name of the sheet to toggle protection.
+#     protect (bool): Whether to protect sheet. True means protect, False means unprotect.
+#     password (string): The password to protect sheet. It is required when protect is True.
+#   usage: Toggle sheet protection for the sheet.
+#   example:
+FreezePanes:
+  args: "(source: str)"
+  args explanation: |
+    source (string): All rows above, and all columns left on source range will be frozen.
+  usage: Freeze panes for current window.
+  example:
+UnfreezePanes:
+  args: "(sheetName: str = None)"
+  args explanation: |
+    sheetName (string): The name of the sheet to unfreeze panes. If sheetName is None, the current sheet will be used.
+  usage: Unfreeze panes.
+  example:
+CreateChart:
+  args: "(source: str, destSheet: str, chartType: str, chartName: str, XField: int = None, YField: List[int] = [])"
+  args explanation: |
+    source (string): The range that contains the data used to create the chart.
+    destSheet (string): The name of the sheet where the chart will be located.
+    chartType (string): The type of chart. It can be 'Area', 'AreaStacked', 'BarClustered', 'BarOfPie', 'BarStacked', 'Bubble', 'ColumnClustered', 'ColumnStacked', 'Line', 'LineMarkers', 'LineMarkersStacked', 'LineStacked', 'Pie', 'XYScatter', 'XYScatterLines', 'XYScatterLinesNoMarkers', 'XYScatterSmooth', 'XYScatterSmoothNoMarkers', '3DPie'.
+    chartName (string): The name for the chart to be created.
+    XField (int): The index of the column that contains the X values, starting from 1. If XField is None, the first column will be used.
+    YField (List[int]): The indices of the columns that contain the Y values, starting from 1. If YField is [], all columns except the first column will be used.
+  usage: Create a chart based on the data from the source range. Please note that if you use data from a pivot table to create a chart, use the API 'CreateChartFromPivotTable' instead.
+  example: |
+    # Example 1: Create a chart in Sheet2 based on the data from A1 to B10 in Sheet1 and set the chart name to 'Chart1'.
+    CreateChart(source='Sheet1!A1:B10', destSheet='Sheet2', chartType='ColumnClustered', chartName='Chart1')
+    # After implementing this action, a chart named 'Chart1' will be created in Sheet2 based on the data from A1 to B10 in Sheet1.
+    # Example 2: Create a chart based on the data from A1 to B10 in Sheet1 and set the chart title to 'Chart1 Title'.
+    CreateChart(source='Sheet1!A1:B10', destSheet='Sheet1', chartType='ColumnClustered', chartName='Chart1')
+    SetChartTitle(chartName='Chart1', title='Chart1 Title')
+    # After implementing this action, a chart named 'Chart1' will be created for the data from Sheet1 A1 to B10 and the chart title will be 'Chart1 Title'.
+    # Example 3: Create a scatter chart in the ScatterChart sheet with Columns B, C on the y-axis and Column A on the x-axis. XField is set as 1 to denote Column A. YField is set as [2,3] to denote Columns B and C.
+    CreateChart(source="Sheet1!A1:B122", destSheet="ScatterChart", chartType="XYScatter", chartName="ScatterChart1", XField=1, YField=[2,3])
+SetChartTrendline:
+  args: "(chartnName: str, trendlineType: List[str], DisplayEquation: bool = None, DisplayRSquared: bool = None)"
+  args explanation: |
+    chartName (string): The name of the chart to set trendline.
+    trendlineType (List[string]): The list of trendline types for series in the chart. The trendline type can be 'exponential', 'linear', 'logarithmic', 'movingAvg', 'polynomial', 'power'.
+    DisplayEquation (bool): Whether to display equation. True means display, False means not display.
+    DisplayRSquared (bool): Whether to display R squared. True means display, False means not display.
+  usage: Set trendline for the chart. Note that, there is no argument about the seriesIndex, which means all series in the chart will have the same trendline.
+  example: |
+    # Example 1: Set trendline for the chart named 'Chart1' in Sheet1.
+    SetChartTrendline(chartName='Chart1', trendlineType=['polynomial'], DisplayEquation=True, DisplayRSquared=True)
+    # After implementing this action, all series in the chart named 'Chart1' in Sheet1 will have a polynomial trendline and the equation and R squared will be displayed.
+    # Example 2: Set trendline for the chart named 'Chart1' in Sheet1.
+    SetChartTrendline(chartName='Chart1', trendlineType=['polynomial', 'linear'], DisplayEquation=True, DisplayRSquared=True)
+    # After implementing this action, the first series in the chart named 'Chart1' in Sheet1 will have a polynomial trendline and the equation and R squared will be displayed. The second series in the chart named 'Chart1' in Sheet1 will have a linear trendline and the equation and R squared will be displayed.
+SetChartTitle:
+  args: "(chartName: str, title: str, fontSize: float = None, bold: bool = None, color: str = None)"
+  args explanation: |
+    chartName (string): The name of the chart to set title.
+    title (string): The title for the chart.
+    fontSize (float): The font size for the title.
+    bold (bool): Whether to set bold. True means bold, False means not bold.
+    color (string): The color for the title. It can be 'black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'dark_red', 'dark_green'.
+  usage: Set title for the chart.
+  example:
+SetChartHasAxis:
+  args: "(chartName: str, axis: str, hasAxis: bool)"
+  args explanation: |
+    chartName (string): The name of the chart to set axis.
+    axis (string): The axis to set. It can be 'x', 'y'.
+    hasAxis (bool): Whether to set axis. True means set, False means not set.
+  usage: Set whether the chart has axis.
+  example:
+SetChartAxis:
+  args: "(chartName: str, axis: str, title: str = None, labelOrientation: str = None, maxValue: float = None, miniValue: float = None)"
+  args explanation: |
+    chartName (string): The name of the chart to set axis.
+    axis (string): The axis to set. It can be 'x', 'y'.
+    title (string): The title for the axis.
+    labelOrientation (string): The label orientation for the axis. It can be 'horizontal', 'vertical', 'upward', 'downward'.
+    maxValue (float): The max value for the axis.
+    miniValue (float): The mini value for the axis.
+  usage: Set detail properties for the chart axis.
+  example:
+SetChartHasLegend:
+  args: "(chartName: str, hasLegend: bool)"
+  args explanation: |
+    chartName (string): The name of the chart to set legend.
+    hasLegend (bool): Whether to set legend. True means set, False means not set.
+  usage: Set whether the chart has legend.
+  example:
+SetChartLegend:
+  args: "(chartName: str, position: str = None, fontSize: str = None, seriesName: list = [])"
+  args explanation: |
+    chartName (string): The name of the chart to set legend.
+    position (string): The position for the legend. It can be 'top', 'bottom', 'left', 'right', 'corner.
+    fontSize (float): The font size for the legend.
+    seriesName (list): The list that contains the series name to be displayed in the legend for each data series.
+  usage: Set detail properties for the chart legend.
+  example:
+SetChartType:
+  args: "(chartName: str, chartType: str)"
+  args explanation: |
+    chartName (string): The name of the chart to set type.
+    chartType (string): The type of chart. It can be 'Area', 'AreaStacked', 'BarClustered', 'BarOfPie', 'BarStacked', 'Bubble', 'ColumnClustered', 'ColumnStacked', 'Line', 'LineMarkers', 'LineMarkersStacked', 'LineStacked', 'Pie', 'XYScatter', 'XYScatterLines', 'XYScatterLinesNoMarkers', 'XYScatterSmooth', 'XYScatterSmoothNoMarkers'.
+  usage: Set chart type for the chart.
+  example:
+# SetChartSource:
+#   args: "(chartName: str, source: str)"
+#   args explanation: |
+#     chartName (string): The name of the chart to set source.
+#     source (string): The range which contains the data used to create the chart.
+#   usage: Set source for the chart.
+#   example:
+# SetChartBackgroundColor:
+#   args: "(chartName: str, color: str)"
+#   args explanation: |
+#     chartName (string): The name of the chart to set background color.
+#     color (string): The color for the chart background. It can be 'black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'dark_red', 'dark_green'.
+#   usage: Set background color for the chart.
+#   example:
+# ResizeChart:
+#   args: "(chartName: str, width: float, height: float)"
+#   args explanation: |
+#     chartName (string): The name of the chart to resize.
+#     width (float): The width for the chart.
+#     height (float): The height for the chart.
+#   usage: Resize the chart.
+#   example:
+# SetChartDataColor:
+#   args: "(chartName: str, seriesName: str, colorRGB: list)"
+#   args explanation: |
+#     chartName (string): The name of the chart to set data color.
+#     seriesName (string): The name of the series to set data color.
+#     colorRGB (list): The RGB color for the data. It should be a list that contains 3 float numbers between 0 and 255.
+#   usage: Set data color for the chart.
+#   example:
+# SetDataSeriesType:
+#   args: "(chartName: str, seriesIndex: int, seriesType: str)"
+#   args explanation: |
+#     chartName (string): The name of the chart to set data series type.
+#     seriesIndex (int): The index of the series to set data series type.
+#     seriesType (string): The type of data series. It can be 'Area', 'AreaStacked', 'BarClustered', 'BarOfPie', 'BarStacked', 'Bubble', 'ColumnClustered', 'ColumnStacked', 'Line', 'LineMarkers', 'LineMarkersStacked', 'LineStacked', 'Pie', 'XYScatter', 'XYScatterLines', 'XYScatterLinesNoMarkers', 'XYScatterSmooth', 'XYScatterSmoothNoMarkers'.
+#   usage: Set data series type for the chart.
+#   example:
+# AddDataSeries:
+#   args: "(chartName: str, xrange: str, yrange: str)"
+#   args explanation: |
+#     chartName (string): The name of the chart to add data series.
+#     xrange (string): The range which contains the x values for the data series.
+#     yrange (string): The range which contains the y values for the data series.
+#   usage: Add data series for the chart.
+#   example: |
+#     # Example 1: Illustrate two data series (one in column A:B and the other C:D) in a line chart.
+#     CreateChart(source='A:B', chartType='Line', chartName='Chart1') # The API CreateChart cannot plot two seperate data series so we plot one first.
+#     AddDataSeries(chartName"Chart1", xrange="C:C", yrange="D:D") # We continue to plot the other one. After implementing this action, the two series are shown with different lines in Chart1.
+#     # Example 2: Use a scatter plot to compare two series in uncontinuous columns (B and D) with shared X-axis values (column A).
+#     CreateChart(source='A:B', chartType='Line', chartName='Chart1') # The API CreateChart cannot plot two series in an uncontinuous range so we plot one first.
+#     AddDataSeries(chartName"Chart1", xrange="A:A", yrange="D:D") # The second series has its X values in column A and Y values in D. After implementing this action, the two series are shown with different sccaters in Chart1.
+# RemoveDataSeries:
+#   args: "(chartName: str, seriesIndex: int)"
+#   args explanation: |
+#     chartName (string): The name of the chart to remove data series.
+#     seriesIndex (int): The index of the series to remove.
+#   usage: Remove data series for the chart.
+#   example:
+# SetDataSeriesSource:
+#   args: "(chartName: str, seriesIndex: int, xrange: str, yrange: str)"
+#   args explanation: |
+#     chartName (string): The name of the chart to set data series source.
+#     seriesIndex (int): The index of the series to set data series source.
+#     xrange (string): The range which contains the x values for the data series.
+#     yrange (string): The range which contains the y values for the data series.
+#   usage: Set data series source for the chart.
+#   example:
+AddChartErrorBars:
+  args: "(chartName: str)"
+  args explanation: |
+    chartName (string): The name of the chart to add error bars.
+  usage: Add error bars for the chart.
+  example:
+RemoveChartErrorBars:
+  args: "(chartName: str)"
+  args explanation: |
+    chartName (string): The name of the chart to remove error bars.
+  usage: Remove error bars for the chart.
+  example:
+AddDataLabels:
+  args: "(chartName: str)"
+  args explanation: |
+    chartName (string): The name of the chart to add data labels.
+  usage: Add data labels for the chart.
+  example:
+RemoveDataLabels:
+  args: "(chartName: str)"
+  args explanation: |
+    chartName (string): The name of the chart to remove data labels.
+  usage: Remove data labels for the chart.
+  example:
+SetChartMarker:
+  args: "(chartName: str, style: List[str] = None, size: float = None)"
+  args explanation: |
+    chartName (string): The name of the chart to set marker.
+    style (List[str]): The list of marker styles for series. The style can be 'auto', 'circle', 'dash', 'diamond', 'dot', 'none', 'picture', 'plus', 'square', 'star', 'triangle', 'x'.
+    size (float): The size of the marker.
+  usage: Set marker for the chart.
+  example:
+# CopyPasteChart:
+#   args: "(sourceChartName: str, destination: str)"
+#   args explanation: |
+#     sourceChartName (string): The name of the source chart.
+#     destination (string): The destination range.
+#     # Copy the chart to the destination range.
+#   usage: Copy the chart to the destination range.
+#   example:
+CreatePivotTable:
+  args: "(source: str, destSheet: str, name: str, RowField: List = [], ColumnField: List = [], PageField: List = [], DataField: List = [], summarizeFunction = 'sum')"
+  args explanation: |
+    source (string): The range which contains the data used to create the pivot table. The source range must be a contiguous range from one sheet, not multiple sheets.
+    destSheet (string): The name of the sheet to place the pivot table.
+    name (string): The name for the pivot table to be created.
+    RowField (list): The list of row fields.
+    ColumnField (list): The list of column fields.
+    PageField (list): The list of page fields.
+    DataField (list): The list of data fields.
+    summarizeFunction (string): The function is used to summarize the PivotTable field (DataField only). It can be 'sum', 'count', 'average', 'max', 'min', 'product', 'countNumbers', 'standardDeviation', 'standardDeviationP', 'var', or 'varP'.
+
+    # Note that, each element in the Field list can only be the name of the header.
+  usage: Create a pivot table based on the data from the source range. Note that. After calling this API, the pivot table will be created in the current sheet and it's forbidden to edit this PivotTable.
+  example: |
+    # Example 1: Create a pivot table in Sheet1 based on the data from the range 'A1:C10' in Sheet1.
+    # The pivot table will have the row field 'Name', the column field 'Month', the page field 'Year', and the data field 'Sales'.
+    CreatePivotTable('Sheet1!A1:C10', 'Sheet1', 'PivotTable1', ['Name'], ['Month'], ['Year'], ['Sales'])
+    # Example 2: Sum the quantity of products sold by type.
+    # Sheet state: Sheet "Sheet1" has 6 columns (Headers are A: "Date Time", B: "Web Site", C: "Product", D: "Type", E: "Quantity", F: "Discount") and 11 rows (including the header row).
+    CreatePivotTable('Sheet1!A1:F11', 'Sheet1', 'PivotTable1', ['Type'], [], [], ['Quantity'])
+CreateChartFromPivotTable:
+  args: "(pivotTableName: str, destSheet:str, chartName: str, chartType: str)"
+  args explanation: |
+    pivotTableName (string): The name of the pivot table which source data will be used to create the pivot chart.
+    destSheet (string): The name of the sheet to place the pivot chart.
+    chartName (string): The name for the chart to be created.
+    chartType (string): The type of the pivot chart. It can be 'Area', 'AreaStacked', 'BarClustered', 'BarOfPie', 'BarStacked', 'Bubble', 'ColumnClustered', 'ColumnStacked', 'Line', 'LineMarkers', 'LineMarkersStacked', 'LineStacked', 'Pie', 'XYScatter', 'XYScatterLines', 'XYScatterLinesNoMarkers', 'XYScatterSmooth', 'XYScatterSmoothNoMarkers', '3DPie'.
+  usage: Create a chart based on the data from a pivot table. Please note that the pivot table must be created before creating the pivot chart. If you use data from a non-pivot table to draw a chart, use API 'CreateChart' instead.
+  example: |
+    # Example 1: Sum the quantity of products sold by type and create a pie chart.
+    # Sheet state: Sheet "Sheet1" has 6 columns (Headers are A: "Date Time", B: "Web Site", C: "Product", D: "Type", E: "Quantity", F: "Discount") and 11 rows (including the header row).
+    CreatePivotTable('Sheet1!A1:F11', 'PivotTable1', ['Type'], [], [], ['Quantity'])
+    CreateChartFromPivotTable('PivotTable1', 'Sheet1', 'PivotChart1', 'Pie')
+    # After running the above two APIs, a pivot chart named 'PivotChart1' will be created in Sheet1, whose source data is based on data from the pivot table 'PivotTable1'.
+CreateSheet:
+  # display: WorksheetCreation
+  args: "(sheetName: str = None, before: str = None, after: str = None)"
+  args explanation: |
+    sheetName (string): The name for the new sheet.
+    before (string): The name of the sheet before which the new sheet will be inserted.
+    after (string): The name of the sheet after which the new sheet will be inserted.
+  usage: Create a new sheet.
+  example: |
+    # Example 1: Create a new sheet named 'Sheet2'.
+    CreateSheet('Sheet2')
+    # Example 2: Summarize the quantity of products sold by type in a new sheet.
+    # Sheet state: Sheet "Sheet1" has 6 columns (Headers are A: "Date Time", B: "Web Site", C: "Product", D: "Type", E: "Quantity", F: "Discount") and 11 rows (including the header row).
+    CreateSheet('Sheet2')
+    CreatePivotTable('Sheet1!A1:F11', 'Sheet2', 'PivotTable1', ['Type'], [], [], ['Quantity'])
+RemoveSheet:
+  args: "(sheetName: str = None)"
+  args explanation: |
+    sheetName (string): The name of the sheet to be removed.
+  usage: Remove the sheet.
+  example:
+# SwitchSheet:
+#   args: "(sheetName: str)"
+#   args explanation: |
+#     sheetName (string): The name of the sheet to be switched to.
+#   usage: Switch to the sheet. Note that, after creating a new sheet, you need to use API 'SwitchSheet' to switch to the new sheet.
+#   example: |
+#     # Example 1: Switch to the sheet named 'Sheet2'.
+#     SwitchSheet('Sheet2')
+#     # Example 2: Summarize the quantity of products sold by type in a new sheet.
+#     # Sheet state: Sheet "Sheet1" has 6 columns (Headers are A: "Date Time", B: "Web Site", C: "Product", D: "Type", E: "Quantity", F: "Discount") and 11 rows (including the header row).
+#     CreateSheet('Sheet2')
+#     SwitchSheet('Sheet2')
+#     CreatePivotTable('Sheet1!A1:F11', 'PivotTable1', ['Type'], [], [], ['Quantity'])
