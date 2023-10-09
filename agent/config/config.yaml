@@ -1,39 +1,45 @@
 path:
-  source_path: ../ActionTransformer/Excel_data/example_sheets_part1/task_sheets
-  save_path: ../output_dataset_513_no_api_doc
-  task_path: ../ActionTransformer/Excel_data/example_sheets_part1/SU_adaptation_sample/dataset.xlsx
-  gt_path: ../ActionTransformer/Excel_data/example_sheets_part1/task_sheet_answers
+  source_path: ../dataset_v1/task_sheets
+  save_path: ../results/test
+  task_path: ../dataset_v1/dataset.xlsx
+  gt_path: ../dataset_v1/task_sheet_answers
 
-worker: 2
+worker: 1
 repeat: 1
 
 Agent:
   API_backend: 'xw'
   APP_backend: 'excel'
-  prompt_path: config/prompt4.yaml
+  prompt_path: config/prompt.yaml
   api_doc_path: config/API_document.yaml
+  use_ext_doc: true
+  use_same_LLM: false
+
   ChatGPT_1:
+    max_total_tokens: 4100
     temperature: 0.0
     timeout: 50
     max_retries: 20
     sleep_time: 20
     api_base: https://api.openai.com/v1
+    model_name: 'gpt-3.5-turbo-0613'
+    prompt_format: gpt
     api_keys: [
       # 'sk-XWUkrLrPeUjqQ1k9ipAaHig4DgDyd2jhh09eVIVRwvhRTi5g',
-      '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',
+      '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',
       # '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',
       # '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',
       # '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',
     ]
   ChatGPT_2:
+    max_total_tokens: 4100
     temperature: 0.0
     timeout: 50
     max_retries: 20
     sleep_time: 20
     api_base: https://api.openai.com/v1
+    model_name: 'gpt-3.5-turbo-0613'
+    prompt_format: gpt
     api_keys: [
-      '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',
-      # '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',
-      # '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',
-      # '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',
+      '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',
     ]

@@ -65,7 +65,7 @@ async def worker():
         success_count = 0
         for i in range(config['repeat']):
             save_path = path + str(i+1)
-            success, res = await agent.Instruction2(context, instructions, source_path, save_path)
+            success, res = await agent.Instruction(context, instructions, source_path, save_path)
             context_log_list = res.pop('context_log')
             if not os.path.exists(save_path):
                 os.makedirs(save_path)
