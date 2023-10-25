@@ -3,7 +3,7 @@ Write:
   args: "(range: str, value: str)"
   args explanation: |
     range (string): The range to write value into. Here, the range must be a single cell.
-    value (string): The value to be written into the range. The string in value also can be excel formulas. If the string starts with "=", it will be treated as a formula. When using address indexing from another sheet in a formula, if the name of the worksheet contains spaces, the name must be enclosed in single quotes. When using address in formulas, take care of the absolute and relative address, e.g., $A$1, $A1, A$1, A1.
+    value (string): The value to be written. The string in value also can be Excel formulas. A string starting with "=" will be treated as a formula. When using address indexing from another sheet in a formula, if the worksheet name contains spaces, its name must be enclosed in single quotes (e.g. 'Pivot Table'!A1). Please use correct absolute and relative references, e.g., $A$1, $A1, A$1, A1.
   usage: Write value into a range. The string in value also can be excel formulas.
   example: |
     # Example 1: Write headers for the new column.
@@ -617,14 +617,14 @@ SetChartMarker:
 CreatePivotTable:
   args: "(source: str, destSheet: str, name: str, RowField: List = [], ColumnField: List = [], PageField: List = [], DataField: List = [], summarizeFunction = 'sum')"
   args explanation: |
-    source (string): The range which contains the data used to create the pivot table. The source range must be a contiguous range from one sheet, not multiple sheets.
+    source (string): The range which contains the data used to create the pivot table. The source range must include the header row and it must be a contiguous range from one sheet, not multiple sheets.
     destSheet (string): The name of the sheet to place the pivot table.
     name (string): The name for the pivot table to be created.
     RowField (list): The list of row fields.
     ColumnField (list): The list of column fields.
     PageField (list): The list of page fields.
     DataField (list): The list of data fields.
-    summarizeFunction (string): The function is used to summarize the PivotTable field (DataField only). It can be 'sum', 'count', 'average', 'max', 'min', 'product', 'countNumbers', 'standardDeviation', 'standardDeviationP', 'var', or 'varP'.
+    summarizeFunction (string): The function is used to summarize the data in DataField only. It can be 'sum', 'count', 'average', 'max', 'min', 'product', 'countNumbers', 'standardDeviation', 'standardDeviationP', 'var', or 'varP'.
 
     # Note that, each element in the Field list can only be the name of the header.
   usage: Create a pivot table based on the data from the source range. Note that. After calling this API, the pivot table will be created in the current sheet and it's forbidden to edit this PivotTable.

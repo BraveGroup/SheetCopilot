@@ -7,7 +7,7 @@ import time
 import numpy as np
 from datetime import datetime
 import argparse
-
+from collections import defaultdict
 DEBUG = False
 USE_NO_AND_SHEETNAME = False
 
@@ -58,11 +58,13 @@ def evaluate(config):
                 "checked_list": [],
                 "exec_success_list": [],
                 "success_list": [],
+                "checked_list_by_cate": defaultdict(list),
+                "exec_success_list_by_cate": defaultdict(list),
+                "success_list_by_cate": defaultdict(list),
                 "gt_min_action_cnt_list": [],
                 "action_cnt_list": [],
                 "query_cnt_list": [],
                 "query_wo_retry_cnt_list": [],
-                "check_result_list": [],
                 "error_log": [],
                 "eval_results": {}
             }
@@ -102,13 +104,19 @@ def evaluate(config):
                 # Check if the number of result files equals log["Success Count"]
                 equal = len([x for x in os.listdir(task_path) if x.endswith('.xlsx') and "source" not in x]) == log["Success Count"]
 
+                cates = row['Categories'].split(', ')
                 if log["Success Count"] > 0 and res_file_exists and equal:
                     if USE_NO_AND_SHEETNAME:
                         check_result["exec_success_list"].append(task_name)
+                        for cate in cates:
+                            check_result["exec_success_list_by_cate"][cate].append(task_name)
                     else:
                         check_result["exec_success_list"].append(index+1)
+                        for cate in cates:
+                            check_result["exec_success_list_by_cate"][cate].append(index+1)
 
-                if os.path.exists(log_file) and 'conditional' not in row['Atomic actions'].lower() and res_file_exists and equal:
+                # if os.path.exists(log_file) and 'conditional' not in row['Atomic actions'].lower() and res_file_exists and equal:
+                if os.path.exists(log_file) and res_file_exists and equal:
                     # Compare the result with all reference solutions.
                     # All reference solutions for one sheet is placed under a folder with the same name.
                     # gt_folder_this_task = os.path.join(gt_path, row['Sheet Name'], f"{row['No.']}_{row['Sheet Name']}")
@@ -143,8 +151,12 @@ def evaluate(config):
                         if check_res[1] and len(log["Success Response"]) > 0:
                             if USE_NO_AND_SHEETNAME:
                                 check_result["success_list"].append(task_name)
+                                for cate in cates:
+                                    check_result["success_list_by_cate"][cate].append(task_name)
                             else:
                                 check_result["success_list"].append(index+1)
+                                for cate in cates:
+                                    check_result["success_list_by_cate"][cate].append(index+1)
 
                             # Count actions
                             num_acts = 0
@@ -186,14 +198,20 @@ def evaluate(config):
                         # print(f"Check error: {index+1}_{row['Sheet Name']}")
                         # print(check_res[0])
                         pass
-
+                    
+                    # Split Exec@1 and Pass@1 into the 6 categories
+                    
                     with open(eval_result_path, 'w') as f:
                         yaml.dump(eval_result, f)
                 
                 if USE_NO_AND_SHEETNAME:
                     check_result["checked_list"].append(task_name)
+                    for cate in cates:
+                        check_result["checked_list_by_cate"][cate].append(task_name)
                 else:
                     check_result["checked_list"].append(index+1)
+                    for cate in cates:
+                        check_result["checked_list_by_cate"][cate].append(index+1)
                 pbar.update(1)
 
         print("\033[0;33;40mEvaluation for Repeat {} has finished. Time elapse: {:.2f}s\033[0m".format(repeat_id, time.time() - t))
@@ -205,13 +223,29 @@ def evaluate(config):
         check_result["eval_results"]["Total"] = total
         check_result["eval_results"]["Exec@1"] = exec_success_cnt / total
         check_result["eval_results"]["Pass@1"] = success_cnt / total
-
+        
+        for k, v in check_result["exec_success_list_by_cate"].items():
+            cate_total = len(check_result['checked_list_by_cate'][k])
+            check_result["eval_results"][f"{k} Exec & Pass"] = "{:d}/{:d} & {:d}/{:d}".format(len(v), cate_total, len(check_result["success_list_by_cate"]), cate_total)
+        
+        # Task status
+        check_result["action_cnt_list"] = ', '.join(str(x) for x in check_result["action_cnt_list"])
+        check_result["gt_min_action_cnt_list"] = ', '.join(str(x) for x in check_result["gt_min_action_cnt_list"])
+        check_result["checked_list"] = ', '.join(str(x) for x in check_result["checked_list"])
+        check_result["success_list"] = ', '.join(str(x) for x in check_result["success_list"])
+        check_result["exec_success_list"] = ', '.join(str(x) for x in check_result["exec_success_list"])
+        check_result["query_cnt_list"] = ', '.join(str(x) for x in check_result["query_cnt_list"])
+        check_result["query_wo_retry_cnt_list"] = ', '.join(str(x) for x in check_result["query_wo_retry_cnt_list"])
+        check_result['checked_list_by_cate'] = {k: ', '.join(str(x) for x in check_result['checked_list_by_cate'][k]) for k in check_result['checked_list_by_cate'].keys()}
+        check_result['success_list_by_cate'] = {k: ', '.join(str(x) for x in check_result['success_list_by_cate'][k]) for k in check_result['success_list_by_cate'].keys()}
+        check_result['exec_success_list_by_cate'] = {k: ', '.join(str(x) for x in check_result['exec_success_list_by_cate'][k]) for k in check_result['exec_success_list_by_cate'].keys()}
+        
         # Action statistics
         check_result["eval_results"]["A_mean"] = np.mean(action_cnt_list).item()
         check_result["eval_results"]["A50"] = np.median(action_cnt_list).item()
         check_result["eval_results"]["A90"] = np.percentile(action_cnt_list, 90).item()
-        check_result["eval_results"]["A50_norm_invers"] = np.median(gt_min_action_cnt_list / np.maximum(action_cnt_list, gt_min_action_cnt_list)).item()
-        check_result["eval_results"]["A90_norm_invers"] = np.percentile(gt_min_action_cnt_list / np.maximum(action_cnt_list, gt_min_action_cnt_list), 90).item()
+        # check_result["eval_results"]["A50_norm_invers"] = np.median(gt_min_action_cnt_list / np.maximum(action_cnt_list, gt_min_action_cnt_list)).item()
+        # check_result["eval_results"]["A90_norm_invers"] = np.percentile(gt_min_action_cnt_list / np.maximum(action_cnt_list, gt_min_action_cnt_list), 90).item()
         check_result["eval_results"]["A50_norm"] = np.median(action_cnt_list / gt_min_action_cnt_list).item()
         check_result["eval_results"]["A90_norm"] = np.percentile(action_cnt_list / gt_min_action_cnt_list, 90).item()
 
@@ -223,7 +257,7 @@ def evaluate(config):
         # check_result["eval_results"]["Q90_norm_invers"] = np.percentile(gt_min_action_cnt_list / np.maximum(action_cnt_list, gt_min_action_cnt_list), 90).item()
         check_result["eval_results"]["Q50_norm"] = np.median(query_cnt_list / query_wo_retry_cnt_list).item()
         check_result["eval_results"]["Q90_norm"] = np.percentile(query_cnt_list / query_wo_retry_cnt_list, 90).item()
-
+        
         for k, v in check_result["eval_results"].items():
             print("{}: {}".format(k, v))
         

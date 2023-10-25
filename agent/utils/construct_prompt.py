@@ -51,7 +51,7 @@ def get_toolllama_api_doc(raw_doc):
                     
                     Lbr = api_call.find('(')
                     Rbr = api_call.rfind(')')
-                    api_name, args = api_call[:Lbr], api_call[Lbr+1:Rbr].split(',')
+                    api_name, args = api_call[:Lbr], api_call[Lbr+1:Rbr].split(', ')
                     
                     arg_names_in_doc = re.findall(r'(\w+)(?=\s*:\s*\w+)', raw_doc[api_name]['args'])
                     

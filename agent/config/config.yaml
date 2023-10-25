@@ -2,7 +2,7 @@ path:
   source_path: ../dataset_v1/task_sheets
   save_path: ../results/test
   task_path: ../dataset_v1/dataset.xlsx
-  gt_path: ../dataset_v1/task_sheet_answers
+  gt_path: ../dataset_v1/task_sheet_answers_v2
 
 worker: 1
 repeat: 1
@@ -14,15 +14,18 @@ Agent:
   api_doc_path: config/API_document.yaml
   use_ext_doc: true
   use_same_LLM: false
+  use_oracle_API_doc: false
+  max_cycle_times: 40
+  max_queries: 30
 
   ChatGPT_1:
-    max_total_tokens: 4100
+    max_total_tokens: 16000
     temperature: 0.0
     timeout: 50
     max_retries: 20
     sleep_time: 20
     api_base: https://api.openai.com/v1
-    model_name: 'gpt-3.5-turbo-0613'
+    model_name: 'gpt-3.5-turbo-16k'
     prompt_format: gpt
     api_keys: [
       # 'sk-XWUkrLrPeUjqQ1k9ipAaHig4DgDyd2jhh09eVIVRwvhRTi5g',
@@ -32,7 +35,7 @@ Agent:
       # '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',
     ]
   ChatGPT_2:
-    max_total_tokens: 4100
+    max_total_tokens: 16000
     temperature: 0.0
     timeout: 50
     max_retries: 20

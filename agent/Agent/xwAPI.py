@@ -277,14 +277,13 @@ class xwBackend():
         source = self.toRange(source)
         destination = self.toRange(destination)
         
-        source_row_start, source_row_end, source_column_start, source_column_end = source.Row, source.Row + source.Rows.Count, source.Column, source.Column + source.Columns.Count
-        destination_row_start, destination_row_end, destination_column_start, destination_column_end = destination.Row, destination.Row + destination.Rows.Count, destination.Column, destination.Column + destination.Columns.Count
+        # source_row_start, source_row_end, source_column_start, source_column_end = source.Row, source.Row + source.Rows.Count, source.Column, source.Column + source.Columns.Count
+        # destination_row_start, destination_row_end, destination_column_start, destination_column_end = destination.Row, destination.Row + destination.Rows.Count, destination.Column, destination.Column + destination.Columns.Count
         
-        # Check if the destination includes the source
-        if not (source_row_start >= destination_row_start\
-            and source_row_end < destination_row_end\
-            and source_column_start >= destination_column_start\
-            and source_column_end < destination_column_end):
+        # AutoFill can be done vertically or horizontally.
+        # Check if the destination range includes the source.
+        
+        if self.activeAPP.Union(destination, source).Address != destination.Address:
             raise ValueError('Illegal source and destination! The auto-filling destination must include the source!')
 
         source.AutoFill(destination)
@@ -356,7 +355,7 @@ class xwBackend():
             destination += 1
         else:
             source += 1
-        self.InsertRow(destination)
+        self.InsertRow(destination, aboveRow=destination)
         self.activeWS.Rows(source).Copy(self.activeWS.Rows(destination))
         self.activeWS.Rows(source).Delete()
 
@@ -970,6 +969,8 @@ class xwBackend():
         if chart is None or chart.Name != chartName:
             raise ValueError(f'Chart {chartName} does not exist.')
         chart = chart.Chart
+        chart.HasLegend = True
+        
         if position and position != 'None':
             position = {
                 'bottom': win32c.LegendPosition.xlLegendPositionBottom,
@@ -1269,32 +1270,38 @@ class xwBackend():
         DataField: the data fields
         
         Example:
-        CreatePivotTable('A1:B10', 'PivotTable1', RowField=['A'], ColumnField=['B'], DataField=['B'])
+        CreatePivotTable('A1:B10', 'PivotTable1', RowField=['Column A'], ColumnField=['Column B'], DataField=['Column B'])
         '''
         # check if the pivot table name exists
         for sheet in self.activeWB.Worksheets:
             for pt in sheet.PivotTables():
                 if pt.Name == name:
-                    raise ValueError(f'Pivot table {name} already exists.')
+                    raise ValueError(f'Pivot table {name} already exists. Please choose a different name.')
         # check if the destSheet exists
         if destSheet not in [sheet.Name for sheet in self.activeWB.Worksheets]:
             raise ValueError(f'Sheet {destSheet} does not exist.')
-        # check if the four fields are letters
-        invalid_fields = []
-        if any([len(x) > 1 for x in RowField]):
-            invalid_fields.append('RowField')
-        if any([len(x) > 1 for x in ColumnField]):
-            invalid_fields.append('ColumnField')
-        if any([len(x) > 1 for x in PageField]):
-            invalid_fields.append('PageField')
-        if any([len(x) > 1 for x in DataField]):
-            invalid_fields.append('DataField')
+        # # check if the four fields are letters
+        # invalid_fields = []
+        # if any([len(x) > 1 for x in RowField]):
+        #     invalid_fields.append('RowField')
+        # if any([len(x) > 1 for x in ColumnField]):
+        #     invalid_fields.append('ColumnField')
+        # if any([len(x) > 1 for x in PageField]):
+        #     invalid_fields.append('PageField')
+        # if any([len(x) > 1 for x in DataField]):
+        #     invalid_fields.append('DataField')
         
-        if len(invalid_fields) > 0:
-            raise ValueError('Illegal fields! the fields in {} can only be column indices (i.e., letters A to Z)'.format(",".join(invalid_fields)))
+        # if len(invalid_fields) > 0:
+        #     raise ValueError('Illegal fields! the fields in {} can only be column indices (i.e., letters A to Z)'.format(",".join(invalid_fields)))
         
         sheet = self.activeWB.Worksheets(destSheet)
         sourceRange = self.toRange(source)
+        
+        # Sometimes the LLM misses the header row, so we manually add it
+        if sourceRange.Row != 1:
+            new_starting_cell = sheet.Cells(1, sourceRange.Column)
+            sourceRange = sheet.Range(new_starting_cell, sheet.Cells(new_starting_cell.Row + sourceRange.Rows.Count, sourceRange.Column + sourceRange.Columns.Count - 1))
+            
         pc = self.activeWB.PivotCaches().Create(SourceType=win32c.PivotTableSourceType.xlDatabase, SourceData=sourceRange)
         destRange = self.GetBlankArea(destSheet)
         pc.CreatePivotTable(TableDestination=destRange, TableName=name)
@@ -1361,12 +1368,18 @@ class xwBackend():
         chartType: the type of the chart
         '''
         # find the pivot table
-        pt = None
         for sheet in self.activeWB.Worksheets:
+            pt_name = None
             for pt in sheet.PivotTables():
-                if pt.Name == pivotTableName:
+                pt_name = pt.Name
+                print(pt_name, '|', pivotTableName)
+                if pt_name == pivotTableName:
                     break
-        if pt is None or pt.Name != pivotTableName:
+            if pt_name is not None: break
+        else:
+            pt = None
+
+        if pt is None:
             raise ValueError(f'Pivot table {pivotTableName} does not exist. Note that this API is only for creating chart from data in pivot table.')
         # check if the destSheet exists
         if destSheet not in [sheet.Name for sheet in self.activeWB.Worksheets]:
@@ -1453,18 +1466,45 @@ class xwBackend():
         state = "Sheet state: "
         for ws in self.activeWB.Worksheets:
             if ws.Range('A1').Value is None:
-                state += "Sheet \"{}\" {} is empty. ".format(ws.Name, '(active)' if ws.Name == self.activeWS.Name else '')
-                continue
-            NumberOfRows = ws.UsedRange.Rows.Count
-            NumberOfColumns = ws.UsedRange.Columns.Count
-            headers = ws.Range('A1', ws.Cells(1,NumberOfColumns)).Value
-            if isinstance(headers, tuple):
-                headers = headers[0]
+                cell_state = "Sheet \"{}\" {} has no content".format(ws.Name, '(active)' if ws.Name == self.activeWS.Name else '')
             else:
-                headers = [headers]
-            headers = ["{}: \"{}\"".format(chr(65+i),header) for i, header in enumerate(headers)]
-            state += "Sheet \"{}\" has {} columns (Headers are {}) and {} rows (1 header row and {} data rows). ".format(ws.Name, NumberOfColumns, ', '.join(headers), NumberOfRows, NumberOfRows-1)
+                NumberOfRows = ws.UsedRange.Rows.Count
+                NumberOfColumns = ws.UsedRange.Columns.Count
+                headers = ws.Range('A1', ws.Cells(1,NumberOfColumns)).Value
+                if isinstance(headers, tuple):
+                    headers = headers[0]
+                else:
+                    headers = [headers]
+                headers = ["{}: \"{}\"".format(chr(65+i),header) for i, header in enumerate(headers)]
+                cell_state = 'Sheet \"{}\" has {} columns (Headers are {}) and {} rows (1 header row and {} data rows)'.format(ws.Name, NumberOfColumns, ', '.join(headers), NumberOfRows, NumberOfRows-1)
+            
+            # Add chart descriptions
+            # Iterate through the shapes to find chart objects
+            chart_names = []
+            for shape in ws.Shapes:
+                if shape.HasChart:
+                    chart = shape.Chart
+                    chart_name = chart.Name
+                    chart_names.append(chart_name[chart_name.find(' ')+1:])
+                    
+            chartNameString = ' and this sheet has the charts whose names are {}'.format(', '.join(chart_names)) if len(chart_names) > 0 else ''
+            
+            # Iterate through the pivot tables and print their names
+            pt_names = []
+            for pivot_table in ws.PivotTables():
+                pt_names.append(pivot_table.Name)
 
+            if len(pt_names) > 0:
+                ptNameString = ' the pivot tables whose names are {}'.format(', '.join(pt_names))
+                if len(chart_names) == 0:
+                    ptNameString = ' and this sheet has' + ptNameString
+                else:
+                    ptNameString = ' and' + ptNameString
+            else:
+                ptNameString = ''
+            
+            state += "{}{}{}. ".format(cell_state, chartNameString, ptNameString)
+                                                                                                                       
         return state
 
     # def Filter
@@ -1472,5 +1512,5 @@ class xwBackend():
 if __name__ == '__main__':
     bot = xwBackend()
     #bot.Write('A1', [['1']])
-    bot.SetHyperlink('Sheet1!A1', 'https://www.baidu.com')
+    bot.AutoFill('Sheet1!G2', 'Sheet1!G2:G36')
     bot.CopyPaste('A1', 'A2')

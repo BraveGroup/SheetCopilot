@@ -47,7 +47,7 @@ async def producer():
         await task_queue.put((index+1, os.path.join(path, f"{index+1}_{row['Sheet Name']}_"), row['Context'], row['Instructions']))
 
 async def worker():
-    agent = Agent(config['Agent'])
+    agent = Agent(config)
     while True:
         index, path, context, instructions = await task_queue.get()
        
@@ -60,12 +60,14 @@ async def worker():
             'Context': context,
             'Instructions': instructions,
             'Success Response': [],
-            'Fail Response': []
+            'Fail Response': [],
+            'Prompt_format': config['Agent']['ChatGPT_1']['prompt_format'],
+            'Use oracle API doc': config['Agent']['use_oracle_API_doc'],
         }
         success_count = 0
         for i in range(config['repeat']):
             save_path = path + str(i+1)
-            success, res = await agent.Instruction(context, instructions, source_path, save_path)
+            success, res = await agent.Instruction2(context, instructions, source_path, save_path)
             context_log_list = res.pop('context_log')
             if not os.path.exists(save_path):
                 os.makedirs(save_path)

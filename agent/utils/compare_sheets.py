@@ -22,7 +22,9 @@ COLOR_DICT = {
 def compare_format_conditions(formatCondition1, formatCondition2, report):
     format_properties = deepcopy(report["format_conditions"])
 
-    if 'formula1' in format_properties.keys() and formatCondition1.Formula1 != formatCondition2.Formula1:
+    # formatCondition can be on of many types, such as 'Top10', and 'FormatCondition'.
+    # If the condition types are not matched or they are matched but the formulas are not identical, the result will be judged as incorrect.
+    if 'formula1' in format_properties.keys() and (type(formatCondition1) is not type(formatCondition2)) or formatCondition1.Formula1 != formatCondition2.Formula1:
         format_properties['formula1'] = 0
 
     if 'color' in format_properties.keys():
@@ -326,7 +328,8 @@ def compare_cells_itercolumn(ws1, ws2, report):
                     except:
                         cell2_has_link = False
                     
-                    if not ((not cell1_has_link and not cell2_has_link) or (cell1.Hyperlinks.Item(1) == cell2.Hyperlinks.Item(1))):
+                    if cell1_has_link and cell2_has_link and cell1.Hyperlinks.Item(1) != cell2.Hyperlinks.Item(1) \
+                        or cell1_has_link ^ cell2_has_link:
                         mismatch = True
                         report['cells']['hyperlink'] = 0
                         break
@@ -402,8 +405,12 @@ def compare_worksheets(ws1, ws2, config):
     if any(config['format_conditions'].values()):
         if ws1.UsedRange.FormatConditions.Count != ws2.UsedRange.FormatConditions.Count:
             report["format_conditions"]["count"] = 0
+        elif ws1.UsedRange.FormatConditions.Count == 0 and ws2.UsedRange.FormatConditions.Count == 0:
+            for k in report["format_conditions"]:
+                report["format_conditions"][k] = 1
         else:
             pairs_to_compare = get_matching_pairs(ws1.UsedRange.FormatConditions, ws2.UsedRange.FormatConditions)
+
 
             for condition1, condition2 in pairs_to_compare:
                 match_results = compare_format_conditions(condition1, condition2, report)
@@ -531,8 +538,8 @@ def compare_workbooks(file1, file2, check_boards):
 
 if __name__ == "__main__":
     # Provide the paths to your workbooks
-    ground_truth_file = r"D:\Github\ActionTransformer\Excel_data\example_sheets_part1\task_sheet_answers\MaturityDate\7_MaturityDate\7_MaturityDate_gt1.xlsx"
-    rpa_processed_file = r"C:\Users\79233\Desktop\Round1_T_0\120_MaturityDate\120_MaturityDate_1.xlsx"
+    ground_truth_file = r"D:\Github\ActionTransformer\Excel_data\example_sheets_part1\task_sheet_answers_v2\DemographicProfile\3_DemographicProfile\3_DemographicProfile_gt6.xlsx"
+    rpa_processed_file = r"D:\SheetCopilot_data\GPT35_20samples\3_DemographicProfile\3_DemographicProfile_1.xlsx"
     check_board_file = ground_truth_file.replace(".xlsx", "_check.yaml")
 
     with open(check_board_file, 'r') as f:
