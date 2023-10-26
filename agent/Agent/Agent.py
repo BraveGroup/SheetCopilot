@@ -36,7 +36,7 @@ class Agent:
         self.use_same_LLM = self.agent_config['use_same_LLM']
         self.interaction_mode = config.get('interaction_mode', False)
         self.max_cycle_times = self.agent_config['max_cycle_times']
-        self.max_queries = self.agent_config['max_queries']
+
         # Whether to use the ground truth API docs to restrict the action space
         self.use_oracle_API_doc = self.agent_config["use_oracle_API_doc"]
         if self.use_oracle_API_doc:
@@ -53,24 +53,6 @@ class Agent:
         
         with open(self.agent_config['api_doc_path']) as f:
             self.api_doc = yaml.load(f, Loader=yaml.FullLoader)
-
-        # self.api_list = []
-        # api_usage = []
-        # self.api_detail_doc = {}
-        # for k, v in self.api_doc.items():
-        #     if v.get('display') is not None:
-        #         api_usage.append(f"{v['display']} # Args: {v['args']} Usage: {v['usage']}")
-        #         self.api_list.append(v['display'])
-        #         new_example = v['example'].replace(k+'(', v['display']+'(') if v['example'] is not None else None
-        #         self.api_detail_doc[v['display']] = f'{v["display"]}{v["args"]}\nArgs explanation:\n{v["args explanation"]}\nUsage example:\n{new_example}'
-        #         # self.api_detail_doc[v['display']] = f'{v["display"]}{v["args"]}\nArgs explanation:\n{v["args explanation"]}\n'
-        #     else:
-        #         api_usage.append(f"{k} # Args: {v['args']} Usage: {v['usage']}")
-        #         self.api_list.append(k)
-        #         self.api_detail_doc[k] = f'{k}{v["args"]}\nArgs explanation:\n{v["args explanation"]}\nUsage example:\n{v["example"]}'
-        #         # self.api_detail_doc[k] = f'{k}{v["args"]}\nArgs explanation:\n{v["args explanation"]}\n'
-
-        # self.api_usage = '\n'.join(api_usage)
 
         self.api_list, self.api_usage, self.api_detail_doc = get_api_doc(self.prompt_format, self.api_doc)
         self.statemachine = self.InitStateMachines()
@@ -100,9 +82,6 @@ class Agent:
             cycles_times += 1
             if cycles_times > self.max_cycle_times:
                 return 'fail', (chatbot, f'Too many cycles (> {self.max_cycle_times})')
-            
-            if context_index > self.max_queries: # Only (limit - 10) // 2 steps are allowed
-                return 'fail', (chatbot, f'Too many queries (> {self.max_queries})')
             
             try:
                 response = await chatbot(prompt)

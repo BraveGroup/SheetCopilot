@@ -16,7 +16,6 @@ Agent:
   use_same_LLM: false
   use_oracle_API_doc: false
   max_cycle_times: 40
-  max_queries: 30
 
   ChatGPT_1:
     max_total_tokens: 16000
