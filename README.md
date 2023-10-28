@@ -18,7 +18,7 @@
 
 </p>
 
-<p align="center">w
+<p align="center">
 <br />
 <a href="https://sheetcopilot-demo.github.io/"><strong>Explore the project website »</strong></a>
 <br />
