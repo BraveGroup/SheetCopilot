@@ -240,13 +240,7 @@ The performaces of SheetCopilot and a VBA-based method on ```dataset/dataset.xls
 | Methods       | Exec@1 | Pass@1 |
 |---------------|--------|--------|
 | GPT-3.5-Turbo | 87.3%  | 44.3%  |
-| VBA-based     | 77.8%  | 37.1%  |
-
-The performaces of SheetCopilot on ```dataset/dataset.xlsx``` using ```dataset/task_sheet_answers_v2``` as the ground truths. (this set of ground truths contain more references, leading to more matching pairs, so the Pass@1 is increased)
-
-| Methods       | Exec@1 | Pass@1 |
-|---------------|--------|--------|
-| GPT-3.5-Turbo | 87.3%  | 56.6%  |
+| VBA-based     | 77.8%  | 35.7%  |
 
 ## The aspects of a spreadsheet SheetCopilot controls
 (1) **Manipulation**: Writing values and formulas, deleting cells, inserting a row/column, autofilling, copy-pasting values, find-and-replacing, setting hyperlinks, removing duplicates, creating sheets, clearing formats.
