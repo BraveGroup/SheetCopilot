@@ -12,7 +12,8 @@
   <a href="#setup">Setup</a> •
   <a href="#dataset">Dataset</a> •
   <a href="#sheetcopilot-usage">Sheetcopilot Usage</a> •
-   <a href="#evaluation">Evaluation</a> •
+  <a href="#evaluation">Evaluation</a> •
+  <a href="https://neurips.cc/media/PosterPDFs/NeurIPS%202023/70193.png?t=1698641001.038527">Poster</a> •
   <a href="http://arxiv.org/abs/2305.19308">Paper</a> •
   <a href="#citation">Citation</a>
 
@@ -37,7 +38,7 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 </p>
 <br>
 
-**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/NScFnpMuRQ)!**
+**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/3yUcZ2P3)!**
 
 ## What's New
 - **[2023/10/29]** ✨ **Interaction script was uploaded!** You can use SheetCopilot to manipulate your own spreadsheets with just one command line (```agent/interaction.py```).
@@ -53,7 +54,7 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 # Setup
 ### 1. Prepare the Conda environment
 
-Python 3.10 is required to support the asyncronous implementation of SheetCopilot.
+SheetCopilot is pnly available on **Windows**. Python 3.10 is required to support the asyncronous implementation of SheetCopilot.
 
 ```
 conda create -n sheetcopilot python=3.10
@@ -218,6 +219,8 @@ python evaluation.py -d [result dir]
 ```
 
 The evaluation results will be recorded in a file named ```eval_result.yaml``` under the result folder.
+
+
 
 The evaluation can restart from a checkpoint if it has been aborted.
 

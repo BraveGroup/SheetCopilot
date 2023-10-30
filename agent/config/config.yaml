@@ -1,8 +1,8 @@
 path:
   source_path: ../dataset_v1/task_sheets
-  save_path: ../results/test
-  task_path: ../dataset_v1/dataset.xlsx
-  gt_path: ../dataset_v1/task_sheet_answers_v2
+  save_path: certain_path
+  task_path: ../dataset/dataset.xlsx
+  gt_path: ../dataset/task_sheet_answers
 
 worker: 1
 repeat: 1

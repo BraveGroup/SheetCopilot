@@ -135,12 +135,18 @@ def compare_pivot_tables(pivot1, pivot2, report):
 
     # Compare rows
     if "rows" in chart_properties.keys():
-        if not (pivot1.RowFields.Count == pivot2.RowFields.Count and pivot1.ColumnFields.Count == pivot2.ColumnFields.Count)\
-            and not (pivot1.RowFields.Count == pivot2.ColumnFields.Count and pivot1.ColumnFields.Count == pivot2.RowFields.Count):
+        # Compare row fields
+        pt1_row_fields = [field.SourceName for field in pivot1.RowFields]
+        pt2_row_fields = [field.SourceName for field in pivot2.RowFields]
+        pt1_col_fields = [field.SourceName for field in pivot1.ColumnFields]
+        pt2_col_fields = [field.SourceName for field in pivot2.ColumnFields]
+        
+        if not (pivot1.RowFields.Count == pivot2.RowFields.Count and pt1_row_fields == pt2_row_fields and pt1_col_fields == pt2_col_fields) and\
+            not (pivot1.RowFields.Count == pivot2.ColumnFields.Count and pt1_row_fields == pt2_col_fields and pt1_col_fields == pt2_row_fields):
             chart_properties["rows"], chart_properties["columns"] = 0, 0
 
     # Compare values
-    if 'values' in chart_properties.keys() and pivot1.DataFields.Count != pivot2.DataFields.Count:
+    if 'values' in chart_properties.keys() and [field.SourceName for field in pivot1.DataFields] != [field.SourceName for field in pivot2.DataFields]:
         chart_properties["values"] = 0
 
     return chart_properties
@@ -262,12 +268,17 @@ def compare_cells_itercolumn(ws1, ws2, report):
 
     NumberOfRows = min(ws1.Range('A1').End(-4121).Row,ws1.UsedRange.Rows.Count)
     NumberOfColumns = min(ws1.Range('A1').End(-4161).Column, ws1.UsedRange.Columns.Count)
-
+    # NumberOfRows = ws1.UsedRange.Rows.Count
+    # NumberOfColumns = ws1.UsedRange.Columns.Count
     mismatch = False
 
-    if NumberOfColumns != min(ws2.Range('A1').End(-4161).Column, ws2.UsedRange.Columns.Count) \
+    if NumberOfRows != min(ws2.Range('A1').End(-4121).Row, ws2.UsedRange.Rows.Count) \
         or NumberOfColumns != min(ws2.Range('A1').End(-4161).Column, ws2.UsedRange.Columns.Count):
+    # if NumberOfRows != ws2.UsedRange.Rows.Count\
+    #     or NumberOfColumns != ws2.UsedRange.Columns.Count:
         mismatch = True
+        report['cells']['values'] = 0
+        
     else:
         ws1_cells = ws1.Range(ws1.Cells(1, 1), ws1.Cells(NumberOfRows, NumberOfColumns))
         ws2_cells = ws2.Range(ws2.Cells(1, 1), ws2.Cells(NumberOfRows, NumberOfColumns))
@@ -285,7 +296,9 @@ def compare_cells_itercolumn(ws1, ws2, report):
                     break
                 match_col_id += 1
             else:
-                match_col_id = col
+                mismatch = True
+                report['cells']['values'] = 0
+                break
             
             # Firtly, compare all cells under this header
             # If the row number is too large, we check the column every ten rows
@@ -317,19 +330,7 @@ def compare_cells_itercolumn(ws1, ws2, report):
 
                 if 'hyperlink' in report['cells'].keys():
                     # If two cells both have no hyperlinks, they are considered matched
-                    cell1_has_link = True
-                    try:
-                        cell1.Hyperlinks.Item(1)
-                    except:
-                        cell1_has_link = False
-                    cell2_has_link = True
-                    try:
-                        cell2.Hyperlinks.Item(1)
-                    except:
-                        cell2_has_link = False
-                    
-                    if cell1_has_link and cell2_has_link and cell1.Hyperlinks.Item(1) != cell2.Hyperlinks.Item(1) \
-                        or cell1_has_link ^ cell2_has_link:
+                    if list(cell1.Hyperlinks) != list(cell2.Hyperlinks):
                         mismatch = True
                         report['cells']['hyperlink'] = 0
                         break
@@ -538,8 +539,8 @@ def compare_workbooks(file1, file2, check_boards):
 
 if __name__ == "__main__":
     # Provide the paths to your workbooks
-    ground_truth_file = r"D:\Github\ActionTransformer\Excel_data\example_sheets_part1\task_sheet_answers_v2\DemographicProfile\3_DemographicProfile\3_DemographicProfile_gt6.xlsx"
-    rpa_processed_file = r"D:\SheetCopilot_data\GPT35_20samples\3_DemographicProfile\3_DemographicProfile_1.xlsx"
+    rpa_processed_file = r"D:\SheetCopilot_data\action_diff_granularity\Chart1\4_StockChange\4_StockChange_1.xlsx"
+    ground_truth_file = r"D:\Github\ActionTransformer\Excel_data\example_sheets_part1\task_sheet_answers\StockChange\4_StockChange\4_StockChange_gt1.xlsx"
     check_board_file = ground_truth_file.replace(".xlsx", "_check.yaml")
 
     with open(check_board_file, 'r') as f:
