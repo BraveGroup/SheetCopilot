@@ -234,8 +234,8 @@ The performaces of SheetCopilot with 3 leading LLMs as its back-end on ```datase
 
 | Models        | Exec@1 | Pass@1 | A50  | A90  |
 |---------------|--------|--------|------|------|
-| GPT-3.5-Turbo | 85.0%  | 45.0%  | 2.00 | 4.50 |
-| GPT-4         | 65.0%  | 55.0%  | 1.33 | 2.00 |
+| GPT-3.5-Turbo | **85.0%**  | 45.0%  | 2.00 | 4.50 |
+| GPT-4         | 65.0%  | **55.0%**  | **1.33** | **2.00** |
 | Claude        | 80.0%  | 40.0%  | 1.50 | 4.40 |
 
 The performaces of SheetCopilot and a VBA-based method on ```dataset/dataset.xlsx``` using ```dataset/task_sheet_answers_v1``` as the ground truths.
@@ -243,7 +243,7 @@ The performaces of SheetCopilot and a VBA-based method on ```dataset/dataset.xls
 | Methods       | Exec@1 | Pass@1 |
 |---------------|--------|--------|
 | GPT-3.5-Turbo | 87.3%  | 44.3%  |
-| VBA-based     | 77.8%  | 35.7%  |
+| VBA-based     | 77.8%  | 16.3%  |
 
 ## The aspects of a spreadsheet SheetCopilot controls
 (1) **Manipulation**: Writing values and formulas, deleting cells, inserting a row/column, autofilling, copy-pasting values, find-and-replacing, setting hyperlinks, removing duplicates, creating sheets, clearing formats.
@@ -276,9 +276,11 @@ SheetCopilot and the dataset can only be used for non-conmercial purposes.
 If you use the SheetCopilot framework or data, feel free to cite us.
 
 ```bibtex
-@misc{li2023sheetcopilot,
-  title={SheetCopilot: Bringing Software Productivity to the Next Level through Large Language Models},
-  author={Hongxin Li and Jingran Su and Yuntao Chen and Qing Li and Zhaoxiang Zhang},
-  journal={arXiv preprint arXiv:2305.19308},
-  year={2023}
+@inproceedings{
+anonymous2023sheetcopilot,
+title={SheetCopilot: Bringing Software Productivity to the Next Level through Large Language Models},
+author={Anonymous},
+booktitle={Thirty-seventh Conference on Neural Information Processing Systems},
+year={2023},
+url={https://openreview.net/forum?id=tfyr2zRVoK}
 }
