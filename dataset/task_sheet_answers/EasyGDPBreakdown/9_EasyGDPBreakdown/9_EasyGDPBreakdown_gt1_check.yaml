@@ -1,0 +1,42 @@
+check_board:
+  '1':
+    cells:
+      formatting: false
+      hyperlink: false
+      values: false
+    charts:
+      axes: false
+      chart_type: true
+      legend: true
+      name: false
+      series: true
+      title: false
+      trendlines: false
+    filters:
+      filters: false
+      name: false
+      source: false
+    format_conditions:
+      bold: false
+      color: false
+      fill_color: false
+      font: false
+      formula1: false
+      italic: false
+      operator: false
+      type: false
+      underline: false
+    pivot_tables:
+      columns: true
+      filters: true
+      name: false
+      rows: true
+      source: true
+      summary_type: true
+      values: true
+    view:
+      freeze_pane: false
+required_APIs:
+- CreatePivotTable
+- CreateChartFromPivotTable
+- SetChartLegend
