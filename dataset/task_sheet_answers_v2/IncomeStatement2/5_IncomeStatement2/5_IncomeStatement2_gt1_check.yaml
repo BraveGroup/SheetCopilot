@@ -1,0 +1,41 @@
+check_board:
+  '2':
+    cells:
+      formatting: true
+      hyperlink: false
+      values: true
+    charts:
+      axes: false
+      chart_type: false
+      legend: false
+      name: false
+      series: false
+      title: false
+      trendlines: false
+    filters:
+      filters: false
+      name: false
+      source: false
+    format_conditions:
+      bold: false
+      color: false
+      fill_color: false
+      font: false
+      formula1: false
+      italic: false
+      operator: false
+      type: false
+      underline: false
+    pivot_tables:
+      columns: false
+      filters: false
+      name: false
+      rows: false
+      source: false
+      values: false
+    view:
+      freeze_pane: false
+required_APIs:
+- Write
+- AutoFill
+- SetDataType
