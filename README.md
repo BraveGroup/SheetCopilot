@@ -49,7 +49,7 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 
 - **[2023/10/25]** SheetCopilot was open-sourced.
 
-- **[2023/9/22]** 🎉 Our [**paper**](http://arxiv.org/abs/2305.19308) was accepted to NeurIPS 2023.
+- **[2023/9/22]** 🎉 Our [**paper**](https://openreview.net/forum?id=tfyr2zRVoK) was accepted to NeurIPS 2023.
 
 - **[2023/5/19]** 👷🏻‍♂️ SheetCopilot was completed.
 
@@ -117,13 +117,13 @@ The fields are explained one-by-one as follows:
 
 The ```task_sheets``` folder contains the 28 evaluation workbooks these tasks applied to.
 
-The ```task_sheet_answers_v1/v2``` folder contains the reference solutions of the tasks. Each solution consists of a reference workbook showing the expected outcome of the corresponding task instruction and a *.yaml file listing the necessary sheet states to compare. If the necessary states of the result matches any of the references, the result is seen as correct. (The v1 version is used in our paper while the v2 version contains more reference solutions collected after our paper was submitted)
+The ```task_sheet_answers``` folder contains the reference solutions of the tasks. Each solution consists of a reference workbook showing the expected outcome of the corresponding task and a *.yaml file listing the necessary sheet states to compare. If the necessary states of the result matches one of the references, the result is seen as correct. (The v1 version is used in our paper while the v2 version contains more reference solutions collected after our paper was submitted)
 
-Each solution folder (e.g. ```1_BoomerangSales```) contains at least 1 references, whichi comprises a final spreadsheet (1_BoomerangSales_gt1.xlsx) and a checking list (1_BoomerangSales_gt1_check.yaml). Different tasks needs differnt atomic actions so the checking lists are tailored to corresponding tasks.
+Each solution folder (e.g. ```1_BoomerangSales```) contains at least 1 references, which comprises a final spreadsheet (1_BoomerangSales_gt1.xlsx) and a checking list (1_BoomerangSales_gt1_check.yaml). Different tasks needs differnt atomic actions so the checking lists are tailored to corresponding tasks.
 
-The ```dataset_20Samples.xlsx``` file lists the 20 selected tasks used to compare the LLMs in our experiments (Table 1).
+The ```dataset_20Samples.xlsx``` file lists the 20 selected tasks used to compare the representative LLMs in our experiments (Table 1).
 
-To dive deeper into the collection details, refer to this [tutorial](/dataset/collecting_scripts/)
+To dive deeper into the dataset collection details, refer to this [tutorial](/dataset/collecting_scripts/).
 
 # SheetCopilot Usage
 
@@ -179,6 +179,8 @@ Afterwards, you will see SheetCopilot create pivot tables and plot proper charts
 <b>Result of the example task</b>
 </p>
 
+[Caution] Any operation executed by SheetCopilot cannot be undone by clicking the "Undo" button! We **strongly** recommend that our users use SheetCopilot on GoogleSheets to automate their spreadsheet tasks.
+
 ## Evaluation on our dataset
 Coming soon ...
 Inside the ```agent``` folder run this command:
@@ -192,7 +194,24 @@ Afterwards, you will see Excel open a spreadsheet automatically to solve all the
 If you want to conduct repeated experiments, set ```repeat: 3```.
 
 ## For Google Sheets
-Coming soon ...
+
+Open a GoogleSheets spreadsheet and install SheetCopilot on the Google Workspace Market like this:
+
+<p align="center">
+<img src="assets/install_on_google_sheets.png" width="75%">
+<br>
+<b>Install SheetCopilot for GoogleSheets</b>
+</p>
+
+Then you can hack SheetCopilot happily via chatting ...
+
+<p align="center">
+<img src="assets/GoogleSheets_demo.png" width="75%">
+<br>
+<b>Let SheetCopilot solve complex tasks for you</b>
+</p>
+
+You can undo any operations executed by SheetCopilot by just using ```Ctrl + Z```.
 
 # Evaluation
 
