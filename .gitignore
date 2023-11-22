@@ -1,5 +1,4 @@
-eval/*
+/eval/
 remove_personal_info.py
-results/*
-agent/*
-example.xlsx
+/results/
+/agent/.vscode
