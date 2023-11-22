@@ -38,7 +38,7 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 </p>
 <br>
 
-**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/3yUcZ2P3)!**
+**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/XawesbJV)!**
 
 ## What's New
 - **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets.
