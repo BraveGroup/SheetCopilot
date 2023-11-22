@@ -219,10 +219,15 @@ def compare_charts(chart1, chart2, report):
                 while i < len(chart2_series):
                     try:
                         # If the X-axis values are string-type, just compare the strings; otherwise, compare the values with a difference tolerance. Same for the Y-axis values
-                        if ((any([type(x) is str for x in series1.XValues]) or any([type(x) is str for x in chart2_series[i].XValues])) and series1.XValues == chart2_series[i].XValues \
-                            or np.allclose(series1.XValues, chart2_series[i].XValues, atol=1e-5)) \
-                        and ((any([type(x) is str for x in series1.Values]) or any([type(x) is str for x in chart2_series[i].Values])) and series1.Values == chart2_series[i].Values \
-                            or np.allclose(series1.Values, chart2_series[i].Values, atol=1e-5)):
+                        s1_xvalues, s2_xvalues = series1.XValues, chart2_series[i].XValues
+                        s1_values, s2_values = series1.Values, chart2_series[i].Values
+                        
+                        if len(s1_xvalues) == len(s2_xvalues) and len(s1_values) == len(s2_values)\
+                        and (s1_xvalues == s2_xvalues \
+                            or (all([isinstance(x, (int, float)) for x in s1_xvalues] + [isinstance(x, (int, float)) for x in s2_xvalues]) and np.allclose(s1_xvalues, s2_xvalues, atol=1e-5))) \
+                        and \
+                            (s1_values == s2_values \
+                            or (all([isinstance(x, (int, float)) for x in s1_values] + [isinstance(x, (int, float)) for x in s2_values]) and np.allclose(s1_values, s2_values, atol=1e-5))):
                             break
                     except:
                         pass
