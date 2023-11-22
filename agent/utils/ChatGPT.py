@@ -11,7 +11,7 @@ default_config = {
     "api_base": "https://api.openai.com/v1",
     "model_name": "gpt-3.5-turbo",
     "api_keys": [
-        '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',
+        '',
     ],
     "max_retries": 3,
     "timeout": 20,
