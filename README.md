@@ -182,7 +182,7 @@ Afterwards, you will see SheetCopilot create pivot tables and plot proper charts
 [Caution] Any operation executed by SheetCopilot cannot be undone by clicking the "Undo" button! We **strongly** recommend that our users use SheetCopilot on GoogleSheets to automate their spreadsheet tasks.
 
 ## Evaluation on our dataset
-Coming soon ...
+
 Inside the ```agent``` folder run this command:
 
 ```
