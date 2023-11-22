@@ -153,7 +153,7 @@ class Agent:
                 # extract the function detailed doc
                 api_detail_doc = '\n'.join([self.api_detail_doc[name] for name in coarse_function_names])
                 # generate the prompt
-                prompt = prompt_for_fine + self.prompt.get('fetch exterlnal doc', f'\nHere is the supplementary doc you can reference:\n{api_detail_doc}\nPlease use the above documents to generate the next step.\n')
+                prompt = prompt_for_fine + self.prompt.get('fetch exterlnal doc', '\nHere is the supplementary doc you can reference:\n{api_detail_doc}\nPlease use the above documents to generate the next step.\n').format(api_detail_doc=api_detail_doc)
 
                 # clear error count
                 self.error_count = 0
