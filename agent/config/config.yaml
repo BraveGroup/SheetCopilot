@@ -1,6 +1,6 @@
 path:
-  source_path: ../dataset_v1/task_sheets
-  save_path: certain_path
+  source_path: ../dataset/task_sheets
+  save_path: ./results
   task_path: ../dataset/dataset.xlsx
   gt_path: ../dataset/task_sheet_answers
 
@@ -14,7 +14,7 @@ Agent:
   api_doc_path: config/API_document.yaml
   use_doc_in_syspromt: false
   use_ext_doc: true
-  use_same_LLM: true
+  use_same_LLM: false
   use_oracle_API_doc: false
   add_example_data2feedback: false
 
@@ -33,6 +33,7 @@ Agent:
     model_name: 'gpt-3.5-turbo-16k'
     prompt_format: gpt
     api_keys: [
+      "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"
     ]
   ChatGPT_2:
     max_total_tokens: 16000
@@ -46,4 +47,5 @@ Agent:
     model_name: 'gpt-3.5-turbo-0613'
     prompt_format: gpt
     api_keys: [
+      "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"
     ]

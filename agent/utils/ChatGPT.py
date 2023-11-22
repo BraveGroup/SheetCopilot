@@ -81,6 +81,7 @@ class ChatGPT:
     async def __request__(self) -> str:
         # Querying...
         # Use acreate for interaction will raise OpanAI communication errors
+        print("Querying ChatGPT ...")
         if self.interaction_mode:
             response = openai.ChatCompletion.create(
                 model = self.model_name,
@@ -101,7 +102,9 @@ class ChatGPT:
             
         # Process responses
         processed = response.choices[0].message.to_dict()
-    
+
+        print(f"Querying finished. Response:\n{processed['content']}")
+        
         return processed
 
 async def test():

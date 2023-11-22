@@ -2,10 +2,10 @@ import xlwings as xw
 from xlwings import Range
 from xlwings import constants as win32c
 from win32com.client import constants as c
-from  constants import constants
+from  .constants import constants
 import win32api
 import win32com.client as win32
-from AtomicAction import Action
+from .AtomicAction import Action
 from functools import wraps
 from typing import Any, Tuple, Callable, Optional, Union, List
 from openpyxl.utils import get_column_letter

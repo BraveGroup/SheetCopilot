@@ -1,4 +1,5 @@
 /eval/
 remove_personal_info.py
 /results/
+/agent/results
 /agent/.vscode
