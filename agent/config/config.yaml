@@ -1,8 +1,8 @@
 path:
   source_path: ../dataset/task_sheets
-  save_path: ./results
+  save_path: D:\SheetCopilot_data\codellama--CodeLlama-7b-Instruct-hf-vicuna_chat_prompt
   task_path: ../dataset/dataset.xlsx
-  gt_path: ../dataset/task_sheet_answers
+  gt_path: ../dataset/task_sheet_answers_v2
 
 worker: 1
 repeat: 1
