@@ -1,6 +1,6 @@
 path:
   source_path: ../dataset/task_sheets
-  save_path: D:\SheetCopilot_data\codellama--CodeLlama-7b-Instruct-hf-vicuna_chat_prompt
+  save_path: ./result
   task_path: ../dataset/dataset.xlsx
   gt_path: ../dataset/task_sheet_answers_v2
 
@@ -33,7 +33,6 @@ Agent:
     model_name: 'gpt-3.5-turbo-16k'
     prompt_format: gpt
     api_keys: [
-      "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"
     ]
   ChatGPT_2:
     max_total_tokens: 16000
@@ -47,5 +46,4 @@ Agent:
     model_name: 'gpt-3.5-turbo-0613'
     prompt_format: gpt
     api_keys: [
-      "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"
     ]
