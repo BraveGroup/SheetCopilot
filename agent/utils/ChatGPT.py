@@ -19,7 +19,7 @@ default_config = {
     "model_name": "gpt-3.5-turbo-16k",
     "prompt_format": "gpt",
     "api_keys": [
-        "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",
+        "",
     ],
 }
 
