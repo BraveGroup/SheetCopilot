@@ -43,11 +43,9 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 ## What's New
 - **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets.
 
-- **[2023/10/29]** ✨ **Interaction script was uploaded!** You can use SheetCopilot to manipulate your own spreadsheets with just one command line (```agent/interaction.py```).
-
 - **[2023/10/27]** 🛠 **More ground truths!** We increased the number of feasible reference solutions in our benchmark threefold (```dataset/task_sheet_answers_v2```) to obtain more accurate evaluation results.
 
-- **[2023/10/25]** SheetCopilot was open-sourced.
+- **[2023/10/25]** SheetCopilot benchmark was open-sourced.
 
 - **[2023/9/22]** 🎉 Our [**paper**](https://openreview.net/forum?id=tfyr2zRVoK) was accepted to NeurIPS 2023.
 
@@ -127,71 +125,9 @@ To dive deeper into the dataset collection details, refer to this [tutorial](/da
 
 # SheetCopilot Usage
 
-Please set max tokens, temperature, model_name, and API keys in ```config/config.yaml```.
+## For Excel
 
-You can see two ChatGPT configs in this file - ChatGPT_1 is used to do planning while ChatGPT_2 is used to revise the format of the planning results. You can set ```use_same_LLM: true``` to use ChatGPT_1 to carry out both the two jobs.
-
-The underlying implementation of SheetCopilot is a state machine which implements planning by transitioning among 4 states (See the below figure). ```max_cycle_times``` is used to limit the number of times the agent visits the states.
-
-<p align="center">
-<img src="assets/StateMachine.jpg" width="85%">
-<br>
-<b>SheetCopilot State Machine</b>
-</p>
-
-<br/>
-
-
-## Interactive mode
-
-Open an Excel workbook before running this command:
-
-```
-python interaction.py -c config/config.yaml
-```
-
-Now you can enter any instrcutions and wait for SheetCoilot to finish them without any intervention.
-
-### Example
-To try out SheetCopilot conveniently, please open ```example.xlsx``` and enter these instructions in order:
-
-1. Calculate the revenue for each transaction considering corresponding retail price and discount.
-
-2. Highlight the Revenue cells greater than 500 in blue text.
-
-3. Create a pivot table in a new sheet to show the counts of the websites on which boomerangs were sold.
-
-4. Plot a bar chart for the pivot table in the same sheet.
-
-5. Set the y-axis title as "Count" and turn off legends.
-
-6. Create another pivot table in a new sheet to show the revenue sums of each product.
-
-7. Plot a pie chart for the pivot table with chart title "Revenue by Product" in this sheet.
-
-You can also try more vague instructions like: ```Analyze the data and plot charts for the results.```
-
-Afterwards, you will see SheetCopilot create pivot tables and plot proper charts for you (see the figure below).
-
-<p align="center">
-<img src="assets/example_result.png" width="85%">
-<br>
-<b>Result of the example task</b>
-</p>
-
-[Caution] Any operation executed by SheetCopilot cannot be undone by clicking the "Undo" button! We **strongly** recommend that our users use SheetCopilot on GoogleSheets to automate their spreadsheet tasks.
-
-## Evaluation on our dataset
-
-Inside the ```agent``` folder run this command:
-
-```
-python main.py -c config/config.yaml
-```
-
-Afterwards, you will see Excel open a spreadsheet automatically to solve all the 221 tasks in order.
-
-If you want to conduct repeated experiments, set ```repeat: 3```.
+ToDo
 
 ## For Google Sheets
 
@@ -262,7 +198,7 @@ The performaces of SheetCopilot with 3 leading LLMs as its back-end on ```datase
 | GPT-4         | 65.0%  | **55.0%**  | **1.33** | **2.00** |
 | Claude        | 80.0%  | 40.0%  | 1.50 | 4.40 |
 
-The performaces of SheetCopilot and a VBA-based method on ```dataset/dataset.xlsx``` using ```dataset/task_sheet_answers_v1``` as the ground truths.
+The performaces of SheetCopilot and a VBA-based method on ```dataset/dataset.xlsx``` using ```dataset/task_sheet_answers``` as the ground truths.
 
 | Methods       | Exec@1 | Pass@1 |
 |---------------|--------|--------|
