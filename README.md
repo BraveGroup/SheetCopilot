@@ -25,7 +25,7 @@
 <br />
 </p>
 
-We release the SheetCopilot as well as the evaluation environment in this repository.
+We release the SheetCopilot benchmark in this repository.
 
 SheetCopilot is an assistant agent that manipulate spreadsheets by following user commands. It breaks new ground in human-computer interaction, opening up possibilities for enabling non-expert users to complete their mandane work on complex software (e.g. Google sheets and Excel) via a language interface.
 
@@ -41,9 +41,9 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 **💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/XawesbJV)!**
 
 ## What's New
-- **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets.
+- **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets. See this [tutorial](https://sheetcopilot.github.io/support.html).
 
-- **[2023/10/27]** 🛠 **More ground truths!** We increased the number of feasible reference solutions in our benchmark threefold (```dataset/task_sheet_answers_v2```) to obtain more accurate evaluation results.
+- **[2023/10/27]** 🛠 **More ground truths!** We added more reference solutions to our benchmark (```dataset/task_sheet_answers_v2```) to obtain more accurate evaluation results.
 
 - **[2023/10/25]** SheetCopilot benchmark was open-sourced.
 
@@ -233,7 +233,7 @@ This video shows SheetCopilot deployed on Google Sheets.
 # Citation
 SheetCopilot and the dataset can only be used for non-conmercial purposes.
 
-If you use the SheetCopilot framework or data, feel free to cite us.
+If you use the SheetCopilot benchmark, feel free to cite us.
 
 ```bibtex
 @inproceedings{
