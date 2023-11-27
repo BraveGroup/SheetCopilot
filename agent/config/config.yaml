@@ -1,6 +1,6 @@
 path:
   source_path: ../dataset/task_sheets
-  save_path: .PATH/To/results
+  save_path: D:\SheetCopilot_data\action_diff_granularity\Chart1
   task_path: ../dataset/dataset.xlsx
   gt_path: ../dataset/task_sheet_answers_v2
 

@@ -57,12 +57,12 @@ def evaluate(config):
                 if index + 1 in check_result["checked_list"]: continue
 
                 # Result file
-                task_name = f"{index + 1}_{row['Sheet Name']}"
-                
+                task_name = f"{row['No.']}_{row['Sheet Name']}"
+
                 task_path = os.path.join(save_path, task_name)
                 if not os.path.exists(task_path):
                     continue
-                # res_path = os.path.join(task_path, f"{task_name}_{repeat_id}.xlsx")
+
                 res_path = os.path.join(task_path, f"{task_name}_{repeat_id}.xlsx") #Claude
 
                 # Load the running log of the task
@@ -80,12 +80,11 @@ def evaluate(config):
 
                 cates = row['Categories'].split(', ')
                 if log["Success Count"] > 0 and res_file_exists and equal:
-                    check_result["exec_success_list"].append(index+1)
-                        
-                    # Split Exec@1 into the 6 categories
+                    check_result["exec_success_list"].append(task_name)
                     for cate in cates:
-                        check_result["exec_success_list_by_cate"][cate].append(index+1)
+                        check_result["exec_success_list_by_cate"][cate].append(task_name)
 
+                # if os.path.exists(log_file) and 'conditional' not in row['Atomic actions'].lower() and res_file_exists and equal:
                 if os.path.exists(log_file) and res_file_exists and equal:
                     # Compare the result with all reference solutions.
                     # All reference solutions for one sheet is placed under a folder with the same name.
@@ -118,11 +117,9 @@ def evaluate(config):
 
                         # If checking is successful
                         if check_res[1] and len(log["Success Response"]) > 0:
-                            check_result["success_list"].append(index+1)
-                                
-                            # Split Pass@1 into the 6 categories
+                            check_result["success_list"].append(task_name)
                             for cate in cates:
-                                check_result["success_list_by_cate"][cate].append(index+1)
+                                check_result["success_list_by_cate"][cate].append(task_name)
 
                             # Count the number of actions in the generated plan, regardless of execution success or failure
                             num_acts = 0
@@ -165,10 +162,10 @@ def evaluate(config):
                     with open(eval_result_path, 'w') as f:
                         yaml.dump(eval_result, f)
                 
-                check_result["checked_list"].append(index+1)
+                check_result["checked_list"].append(task_name)
                 for cate in cates:
-                    check_result["checked_list_by_cate"][cate].append(index+1)
-                
+                    check_result["checked_list_by_cate"][cate].append(task_name)
+
                 pbar.update(1)
 
         print("\033[0;33;40mEvaluation for Repeat {} has finished. Time elapse: {:.2f}s\033[0m".format(repeat_id, time.time() - t))
