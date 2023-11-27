@@ -25,7 +25,7 @@
 <br />
 </p>
 
-We release the SheetCopilot as well as the evaluation environment in this repository.
+We release the SheetCopilot benchmark in this repository.
 
 SheetCopilot is an assistant agent that manipulate spreadsheets by following user commands. It breaks new ground in human-computer interaction, opening up possibilities for enabling non-expert users to complete their mandane work on complex software (e.g. Google sheets and Excel) via a language interface.
 
@@ -38,18 +38,16 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 </p>
 <br>
 
-**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/3yUcZ2P3)!**
+**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/XawesbJV)!**
 
 ## What's New
-- **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets.
+- **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets. See this [tutorial](https://sheetcopilot.github.io/support.html).
 
-- **[2023/10/29]** ✨ **Interaction script was uploaded!** You can use SheetCopilot to manipulate your own spreadsheets with just one command line (```agent/interaction.py```).
+- **[2023/10/27]** 🛠 **More ground truths!** We added more reference solutions to our benchmark (```dataset/task_sheet_answers_v2```) to obtain more accurate evaluation results.
 
-- **[2023/10/27]** 🛠 **More ground truths!** We increased the number of feasible reference solutions in our benchmark threefold (```dataset/task_sheet_answers_v2```) to obtain more accurate evaluation results.
+- **[2023/10/25]** SheetCopilot benchmark was open-sourced.
 
-- **[2023/10/25]** SheetCopilot was open-sourced.
-
-- **[2023/9/22]** 🎉 Our [**paper**](http://arxiv.org/abs/2305.19308) was accepted to NeurIPS 2023.
+- **[2023/9/22]** 🎉 Our [**paper**](https://openreview.net/forum?id=tfyr2zRVoK) was accepted to NeurIPS 2023.
 
 - **[2023/5/19]** 👷🏻‍♂️ SheetCopilot was completed.
 
@@ -117,82 +115,39 @@ The fields are explained one-by-one as follows:
 
 The ```task_sheets``` folder contains the 28 evaluation workbooks these tasks applied to.
 
-The ```task_sheet_answers_v1/v2``` folder contains the reference solutions of the tasks. Each solution consists of a reference workbook showing the expected outcome of the corresponding task instruction and a *.yaml file listing the necessary sheet states to compare. If the necessary states of the result matches any of the references, the result is seen as correct. (The v1 version is used in our paper while the v2 version contains more reference solutions collected after our paper was submitted)
+The ```task_sheet_answers``` folder contains the reference solutions of the tasks. Each solution consists of a reference workbook showing the expected outcome of the corresponding task and a *.yaml file listing the necessary sheet states to compare. If the necessary states of the result matches one of the references, the result is seen as correct. (The v1 version is used in our paper while the v2 version contains more reference solutions collected after our paper was submitted)
 
-Each solution folder (e.g. ```1_BoomerangSales```) contains at least 1 references, whichi comprises a final spreadsheet (1_BoomerangSales_gt1.xlsx) and a checking list (1_BoomerangSales_gt1_check.yaml). Different tasks needs differnt atomic actions so the checking lists are tailored to corresponding tasks.
+Each solution folder (e.g. ```1_BoomerangSales```) contains at least 1 references, which comprises a final spreadsheet (1_BoomerangSales_gt1.xlsx) and a checking list (1_BoomerangSales_gt1_check.yaml). Different tasks needs differnt atomic actions so the checking lists are tailored to corresponding tasks.
 
-The ```dataset_20Samples.xlsx``` file lists the 20 selected tasks used to compare the LLMs in our experiments (Table 1).
+The ```dataset_20Samples.xlsx``` file lists the 20 selected tasks used to compare the representative LLMs in our experiments (Table 1).
 
-To dive deeper into the collection details, refer to this [tutorial](/dataset/collecting_scripts/)
+To dive deeper into the dataset collection details, refer to this [tutorial](/dataset/collecting_scripts/).
 
 # SheetCopilot Usage
 
-Please set max tokens, temperature, model_name, and API keys in ```config/config.yaml```.
+## For Excel
 
-You can see two ChatGPT configs in this file - ChatGPT_1 is used to do planning while ChatGPT_2 is used to revise the format of the planning results. You can set ```use_same_LLM: true``` to use ChatGPT_1 to carry out both the two jobs.
-
-The underlying implementation of SheetCopilot is a state machine which implements planning by transitioning among 4 states (See the below figure). ```max_cycle_times``` is used to limit the number of times the agent visits the states.
-
-<p align="center">
-<img src="assets/StateMachine.jpg" width="85%">
-<br>
-<b>SheetCopilot State Machine</b>
-</p>
-
-<br/>
-
-
-## Interactive mode
-
-Open an Excel workbook before running this command:
-
-```
-python interaction.py -c config/config.yaml
-```
-
-Now you can enter any instrcutions and wait for SheetCoilot to finish them without any intervention.
-
-### Example
-To try out SheetCopilot conveniently, please open ```example.xlsx``` and enter these instructions in order:
-
-1. Calculate the revenue for each transaction considering corresponding retail price and discount.
-
-2. Highlight the Revenue cells greater than 500 in blue text.
-
-3. Create a pivot table in a new sheet to show the counts of the websites on which boomerangs were sold.
-
-4. Plot a bar chart for the pivot table in the same sheet.
-
-5. Set the y-axis title as "Count" and turn off legends.
-
-6. Create another pivot table in a new sheet to show the revenue sums of each product.
-
-7. Plot a pie chart for the pivot table with chart title "Revenue by Product" in this sheet.
-
-You can also try more vague instructions like: ```Analyze the data and plot charts for the results.```
-
-Afterwards, you will see SheetCopilot create pivot tables and plot proper charts for you (see the figure below).
-
-<p align="center">
-<img src="assets/example_result.png" width="85%">
-<br>
-<b>Result of the example task</b>
-</p>
-
-## Evaluation on our dataset
-Coming soon ...
-Inside the ```agent``` folder run this command:
-
-```
-python main.py -c config/config.yaml
-```
-
-Afterwards, you will see Excel open a spreadsheet automatically to solve all the 221 tasks in order.
-
-If you want to conduct repeated experiments, set ```repeat: 3```.
+ToDo
 
 ## For Google Sheets
-Coming soon ...
+
+Open a GoogleSheets spreadsheet and install SheetCopilot on the Google Workspace Market like this:
+
+<p align="center">
+<img src="assets/install_on_google_sheets.png" width="75%">
+<br>
+<b>Install SheetCopilot for GoogleSheets</b>
+</p>
+
+Then you can hack SheetCopilot happily via chatting ...
+
+<p align="center">
+<img src="assets/GoogleSheets_demo.png" width="75%">
+<br>
+<b>Let SheetCopilot solve complex tasks for you</b>
+</p>
+
+You can undo any operations executed by SheetCopilot by just using ```Ctrl + Z```.
 
 # Evaluation
 
@@ -243,7 +198,7 @@ The performaces of SheetCopilot with 3 leading LLMs as its back-end on ```datase
 | GPT-4         | 65.0%  | **55.0%**  | **1.33** | **2.00** |
 | Claude        | 80.0%  | 40.0%  | 1.50 | 4.40 |
 
-The performaces of SheetCopilot and a VBA-based method on ```dataset/dataset.xlsx``` using ```dataset/task_sheet_answers_v1``` as the ground truths.
+The performaces of SheetCopilot and a VBA-based method on ```dataset/dataset.xlsx``` using ```dataset/task_sheet_answers``` as the ground truths.
 
 | Methods       | Exec@1 | Pass@1 |
 |---------------|--------|--------|
@@ -278,7 +233,7 @@ This video shows SheetCopilot deployed on Google Sheets.
 # Citation
 SheetCopilot and the dataset can only be used for non-conmercial purposes.
 
-If you use the SheetCopilot framework or data, feel free to cite us.
+If you use the SheetCopilot benchmark, feel free to cite us.
 
 ```bibtex
 @inproceedings{

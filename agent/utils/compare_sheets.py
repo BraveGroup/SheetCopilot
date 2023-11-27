@@ -1,8 +1,6 @@
 import os
 import win32com.client as win32
 import numpy as np
-import json
-import pythoncom
 import time
 from collections import defaultdict
 from copy import deepcopy
@@ -134,11 +132,6 @@ def compare_pivot_tables(pivot1, pivot2, report):
     # Initialize report
     chart_properties = deepcopy(report['pivot_tables'])
 
-    # Compare name
-    # if config['name'] and pivot1.Name != pivot2.Name:
-    #     report["name"] = False
-    #     print(f"Pivot table name mismatch in sheet {pivot1.Parent.Name}")
-
     # Compare source
     if 'source' in chart_properties.keys() and pivot1.SourceData != pivot2.SourceData:
         chart_properties["source"] = 0
@@ -172,11 +165,6 @@ def compare_pivot_tables(pivot1, pivot2, report):
 def compare_charts(chart1, chart2, report):
     # Initialize report
     chart_properties = deepcopy(report['charts'])
-
-    # Compare name
-    # if config['name'] and chart1.Name != chart2.Name:
-    #     report["name"] = False
-    #     print(f"Chart name mismatch in sheet {chart1.Parent.Name}")
 
     # Compare chart type
     if 'chart_type' in chart_properties.keys() and chart1.Chart.ChartType != chart2.Chart.ChartType:
@@ -219,10 +207,15 @@ def compare_charts(chart1, chart2, report):
                 while i < len(chart2_series):
                     try:
                         # If the X-axis values are string-type, just compare the strings; otherwise, compare the values with a difference tolerance. Same for the Y-axis values
-                        if ((any([type(x) is str for x in series1.XValues]) or any([type(x) is str for x in chart2_series[i].XValues])) and series1.XValues == chart2_series[i].XValues \
-                            or np.allclose(series1.XValues, chart2_series[i].XValues, atol=1e-5)) \
-                        and ((any([type(x) is str for x in series1.Values]) or any([type(x) is str for x in chart2_series[i].Values])) and series1.Values == chart2_series[i].Values \
-                            or np.allclose(series1.Values, chart2_series[i].Values, atol=1e-5)):
+                        s1_xvalues, s2_xvalues = series1.XValues, chart2_series[i].XValues
+                        s1_values, s2_values = series1.Values, chart2_series[i].Values
+                        
+                        if len(s1_xvalues) == len(s2_xvalues) and len(s1_values) == len(s2_values)\
+                        and (s1_xvalues == s2_xvalues \
+                            or (all([isinstance(x, (int, float)) for x in s1_xvalues] + [isinstance(x, (int, float)) for x in s2_xvalues]) and np.allclose(s1_xvalues, s2_xvalues, atol=1e-5))) \
+                        and \
+                            (s1_values == s2_values \
+                            or (all([isinstance(x, (int, float)) for x in s1_values] + [isinstance(x, (int, float)) for x in s2_values]) and np.allclose(s1_values, s2_values, atol=1e-5))):
                             break
                     except:
                         pass
@@ -299,14 +292,12 @@ def compare_cells_itercolumn(ws1, ws2, report):
 
     NumberOfRows = min(ws1.Range('A1').End(-4121).Row,ws1.UsedRange.Rows.Count)
     NumberOfColumns = min(ws1.Range('A1').End(-4161).Column, ws1.UsedRange.Columns.Count)
-    # NumberOfRows = ws1.UsedRange.Rows.Count
-    # NumberOfColumns = ws1.UsedRange.Columns.Count
+
     mismatch = False
 
     if NumberOfRows != min(ws2.Range('A1').End(-4121).Row, ws2.UsedRange.Rows.Count) \
         or NumberOfColumns != min(ws2.Range('A1').End(-4161).Column, ws2.UsedRange.Columns.Count):
-    # if NumberOfRows != ws2.UsedRange.Rows.Count\
-    #     or NumberOfColumns != ws2.UsedRange.Columns.Count:
+
         mismatch = True
         report['cells']['values'] = 0
         
@@ -572,16 +563,13 @@ def compare_workbooks(file1, file2, check_boards):
     # Close workbooks and quit Excel
     wb1.Close(SaveChanges=False)
     wb2.Close(SaveChanges=False)
-    # excel.Application.Quit()
-
-    # pythoncom.CoUninitialize()
 
     return report, sussess
 
 if __name__ == "__main__":
     # Provide the paths to your workbooks
-    rpa_processed_file = r"D:\SheetCopilot_data\Round1_T_0\208_WeeklySales\208_WeeklySales_1.xlsx"
-    ground_truth_file = r"D:\Github\ActionTransformer\Excel_data\example_sheets_part1\task_sheet_answers\WeeklySales\10_WeeklySales\10_WeeklySales_gt1.xlsx"
+    rpa_processed_file = r"208_WeeklySales\208_WeeklySales_1.xlsx"
+    ground_truth_file = r"task_sheet_answers\WeeklySales\10_WeeklySales\10_WeeklySales_gt1.xlsx"
     check_board_file = ground_truth_file.replace(".xlsx", "_check.yaml")
 
     with open(check_board_file, 'r') as f:
