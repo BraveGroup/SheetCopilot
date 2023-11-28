@@ -127,7 +127,7 @@ To dive deeper into the dataset collection details, refer to this [tutorial](/da
 
 ## For Excel
 
-ToDo
+We implement each API with the ```pywin32``` library. Please refer to [API difinitions](/agent/Agent/xwAPI.py) to see the details. To compare with our SheetCopilot, your own agents should take these APIs as the action space.
 
 ## For Google Sheets
 
@@ -158,9 +158,7 @@ results
   └── ([No.]_[Sheet Name])
   └── 1_BoomerangSales
   |   └── ([No.]_[Sheet Name]_[Repeat_No.].xlsx)
-  |   └── 1_BoomerangSales_1.xlsx
-  |   ...
-  |   └── 1_BoomerangSales_3.xlsx
+  |   └── 1_BoomerangSales_log.yaml
   ...
   └── 9_BoomerangSales
   ...
@@ -173,9 +171,23 @@ results
 [Sheet Name] and [No.] are the items in columns A and B in ```dataset.xlsx``` (e.g. 9_BoomerangSales
 ). [Repeat_NO.] is used to differentiate multiple repeats of the same task. If you run each task only once (controlled by ```repeat```), [Repeat_NO.] is 1.
 
-Run this code within the ```eval``` folder to evaluate your results:
+Your method should also record a log for each task, saving the content of the planning process (```agent/log_example.yaml``` shows an example of the required log format.). As differrent agents may present plans of various formats, we recommend that each method output each step using this format:
 ```
-python evaluation.py -d [result dir]
+Step X. [Thought]
+Action API: @[Action call]@'
+```
+
+For example,
+```
+Step 3. Fill the formula to other cells.
+Action API: @AutoFill(source="Sheet1!A2", destination="Sheet1!A2:A36")@
+```
+
+Please refer to [this script](/agent/Agent/xwAPI.py) for the detailed API definitions.
+
+Specify the correct paths in ```agent/config/config.yaml``` and then run this code within the ```agent``` folder to evaluate your results:
+```
+python evaluation.py
 ```
 
 The evaluation results will be recorded in a file named ```eval_result.yaml``` under the result folder.
