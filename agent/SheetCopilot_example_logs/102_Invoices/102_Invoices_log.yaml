@@ -1,0 +1,31 @@
+Context: My workbook records many invoices made on different dates.
+Fail Response: []
+Instructions: 'Set cells in the Sales column that are on 5/25/2011 as red fill with
+  white text. '
+Source Path: \\MAC\Home\Downloads\workspace\output_dataset_512\102_Invoices\102_Invoices_source.xlsx
+Success Count: 1
+Success Response:
+- intermediate response:
+  - 'Step 1. Filter the Sales column by the date 5/25/2011.
+
+    Action API: @Filter(source="Sheet1!B2:B19", fieldIndex=1, criteria="=5/25/2011")@'
+  - 'Step 2. Set the format of the filtered cells to red fill with white text.
+
+    Action API: @SetFormat(source="Sheet1!G2:G19", fillColor="red", color="white")@'
+  - Done!
+  msg: []
+  raw response:
+  - 'Step 1. Select the range of cells in the Sales column that have the date 5/25/2011.
+
+    Action API: @Filter(source="Sheet1!B1:B19", fieldIndex=1, criteria="5/25/2011")@'
+  - 'Step 2. Set the format of the filtered cells.
+
+    Action API: @SetFormat(source="Sheet1!G2:G19", fillColor=255, color="FFFFFF")@'
+  - 'Step 3. Remove the filter.
+
+    Action API: @DeleteFilter()@'
+  refined response:
+  - - Filter(source="Sheet1!B2:B19", fieldIndex=1, criteria="=5/25/2011")
+  - - SetFormat(source="Sheet1!G2:G19", fillColor="red", color="white")
+Timestamp: '2023-05-13 15:46:12'
+Total Count: 1

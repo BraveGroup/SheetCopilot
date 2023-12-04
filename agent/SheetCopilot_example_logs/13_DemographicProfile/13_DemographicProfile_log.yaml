@@ -1,0 +1,25 @@
+Context: My workbook records information of respondents.
+Fail Response: []
+Instructions: Sort the data by the Sex column from A to Z.
+Source Path: \\MAC\Home\Downloads\workspace\output_dataset_512\13_DemographicProfile\13_DemographicProfile_source.xlsx
+Success Count: 1
+Success Response:
+- intermediate response:
+  - 'Step 1. Sort the data by the Sex column from A to Z.
+
+    Action API: @Sort(source="Sheet1!A1:D41", key1="B", order="asc", orientation="column")@'
+  - 'Step 1. Sort the data by the Sex column from A to Z.
+
+    Action API: @Sort(source="Sheet1!A2:D41", key1="Sheet1!B2", order="asc", orientation="column")@'
+  msg: []
+  raw response:
+  - 'Step 1. Select the range to be sorted.
+
+    Action API: @Write(range="Sheet1!A2:D41", value="", valueInputOption="USER_ENTERED")@
+    (This step is to select the range to be sorted. We can use the Write API to write
+    an empty value to the range.)'
+  - Done!
+  refined response:
+  - - Sort(source="Sheet1!A2:D41", key1="Sheet1!B2", order="asc", orientation="column")
+Timestamp: '2023-05-12 21:11:00'
+Total Count: 1

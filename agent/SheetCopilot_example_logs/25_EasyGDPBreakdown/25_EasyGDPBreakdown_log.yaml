@@ -1,0 +1,59 @@
+Context: My workbook records economic indicators of countries across many years.
+Fail Response:
+- intermediate response:
+  - 'Step 1. Create a new sheet.
+
+    Action API: @CreateSheet(sheetName="GDP Data")@'
+  - 'Step 2. Copy the data from "Sheet1" to "GDP Data".
+
+    Action API: @CopyPaste(source="Sheet1!A1:P3685", destination="GDP Data!A1")@'
+  - 'Step 3. Filter the data to keep only "Gross Domestic Product (GDP)" from the
+    IndicatorName field.
+
+    Action API: @Filter(source="GDP Data!A1:P3685", fieldIndex=2, criteria="=Gross
+    Domestic Product (GDP)")@'
+  - 'Step 4. Delete the data from 2000 to 2002.
+
+    Action API: @Delete(source="GDP Data!C1:E3685", region="column")@'
+  msg: This model's maximum context length is 4097 tokens. However, your messages
+    resulted in 4152 tokens. Please reduce the length of the messages.
+  raw response:
+  - 'Step 1. Create a new sheet.
+
+    Action API: @CreateSheet(sheetName="GDP Breakdown")@'
+  - 'Step 2. Copy the header row from "Sheet1" to "GDP Data".
+
+    Action API: @CopyPaste(source="Sheet1!1:1", destination="GDP Data!1:1")@'
+  - 'Step 3. Filter the data to keep only "Gross Domestic Product (GDP)" from the
+    IndicatorName field.
+
+    Action API: @Filter(source="GDP Data!B1:B3685", fieldIndex=1, criteria="Gross
+    Domestic Product (GDP)")@'
+  - 'Step 4. Delete the data from 2000 to 2002.
+
+    Action API: @Delete(source="GDP Data!C1:E3685", region="SHIFT_LEFT")@'
+  - 'Step 5. Create a pivot table to calculate the sum of GDP for each country by
+    year.
+
+    Action API: @CreatePivotTable(source="GDP Data!A1:M3685", destSheet="GDP Data",
+    name="GDP Pivot Table", RowField=["Country"], ColumnField=["2003", "2004", "2005",
+    "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013"], DataField=["GDP"],
+    summarizeFunction="sum")@'
+  refined response:
+  - - CreateSheet(sheetName="GDP Data")
+  - - CopyPaste(source="Sheet1!A1:P3685", destination="GDP Data!A1")
+  - - Filter(source="GDP Data!A1:P3685", fieldIndex=2, criteria="=Gross Domestic Product
+      (GDP)")
+  - - Delete(source="GDP Data!C1:E3685", region="column")
+Instructions: 'I would like you to extract a breakdown of the data and place it into
+  a new sheet. The requirements are as follows: (1) Keep only "Gross Domestic Product
+  (GDP)" from the IndicatorName field, (2) I don''t need the data from 2000 to 2002.
+  In the new sheet, create a stacked area chart to display the GDP growth against
+  the years for the countries whose 2013 GDP ranked top 10 (do not delete other countries''
+  data). Display the legends as the top 10 country names on the right and set the
+  chart title as "Top 10 GDP".'
+Source Path: \\MAC\Home\Downloads\workspace\output_dataset_512\25_EasyGDPBreakdown\25_EasyGDPBreakdown_source.xlsx
+Success Count: 0
+Success Response: []
+Timestamp: '2023-05-12 21:13:56'
+Total Count: 1

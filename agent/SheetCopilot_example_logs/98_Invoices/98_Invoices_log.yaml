@@ -1,0 +1,40 @@
+Context: My workbook records many invoices made on different dates.
+Fail Response: []
+Instructions: Highlight the Sales Rep cells whose corresponding values in the Sales
+  column are above the median as green fill with white text.
+Source Path: \\MAC\Home\Downloads\workspace\output_dataset_512\98_Invoices\98_Invoices_source.xlsx
+Success Count: 1
+Success Response:
+- intermediate response:
+  - 'Step 1. Calculate the median of the Sales column.
+
+    Action API: @Write(range="Sheet1!H1", value="Median")@
+
+    Action API: @Write(range="Sheet1!I1", value="=MEDIAN(G2:G19)")@'
+  - 'Step 2. Highlight the Sales Rep cells whose corresponding values in the Sales
+    column are above the median as green fill with white text.
+
+    Action API: @SetConditionalFormat(source="Sheet1!C2:C19", formula="=$G2>$I$1",
+    fillColor="green", color="white")@
+
+    '
+  msg: []
+  raw response:
+  - 'Step 1. Calculate the median of the Sales column.
+
+    Action API: @Write(range="Sheet1!H1", value="Median")@
+
+    Action API: @Write(range="Sheet1!H2", value="=MEDIAN(G2:G19)")@'
+  - 'Step 2. Apply conditional formatting to highlight the Sales Rep cells whose corresponding
+    values in the Sales column are above the median as green fill with white text.
+
+    Action API: @SetConditionalFormat(source="Sheet1!G2:G19", formular="=G2>$I$1",
+    fillColor="green", color="white")@'
+  - Done!
+  refined response:
+  - - Write(range="Sheet1!H1", value="Median")
+    - Write(range="Sheet1!I1", value="=MEDIAN(G2:G19)")
+  - - SetConditionalFormat(source="Sheet1!C2:C19", formula="=$G2>$I$1", fillColor="green",
+      color="white")
+Timestamp: '2023-05-12 21:28:27'
+Total Count: 1

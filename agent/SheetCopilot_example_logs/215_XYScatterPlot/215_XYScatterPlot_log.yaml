@@ -1,0 +1,43 @@
+Context: My sheet shows how two variables (Range and Height) changes along with the
+  projection angle.
+Fail Response: []
+Instructions: In column D called "Marked Angles". For each cell in the Angle column,
+  if the corresponding cell in the Range column > 0.5, write a '+' symbol. If the
+  corresponding cell in the Height column > 0.25, write a '-' symbol. Otherwise, leave
+  the cell unchanged.
+Source Path: \\MAC\Home\Downloads\workspace\output_dataset_512\215_XYScatterPlot\215_XYScatterPlot_source.xlsx
+Success Count: 1
+Success Response:
+- intermediate response:
+  - 'Step 1. Create a new column D called "Marked Angles".
+
+    Action API: @InsertColumn(sheetName="Sheet1", after="C")@
+
+    @Write(range="Sheet1!D1", value="Marked Angles")@'
+  - 'Step 1. Insert a new column D.
+
+    Action API: @InsertColumn(sheetName="Sheet1", afterColumn="C")@'
+  - 'Step 2. Write the header for the new column.
+
+    Action API: @Write(range="Sheet1!D1", value="Marked Angles")@'
+  - 'Step 3. Write the formula to mark the angles.
+
+    Action API: @Write(range="Sheet1!D2", value="=IF(AND(B2>0.5,C2<=0.25),\"+\",IF(AND(B2<=0.5,C2>0.25),\"-\",IF(AND(B2>0.5,C2>0.25),\"+-\",\"\")))")@'
+  msg: []
+  raw response:
+  - 'Step 1. Create a new column D called "Marked Angles".
+
+    Action API: @Write(range="Sheet1!D1", value="Marked Angles")@'
+  - 'Step 2. Write "Marked Angles" in cell D1.
+
+    Action API: @Write(range="Sheet1!D1", value="Marked Angles")@'
+  - 'Step 3. Write the formula to mark the angles.
+
+    Action API: @Write(range="Sheet1!D2", value=''=IF(AND(B2>0.5,C2>0.25),"+-",IF(B2>0.5,"+","")&IF(C2>0.25,"-",""))'')@'
+  - Done!
+  refined response:
+  - - InsertColumn(sheetName="Sheet1", afterColumn="C")
+  - - Write(range="Sheet1!D1", value="Marked Angles")
+  - - Write(range="Sheet1!D2", value="=IF(AND(B2>0.5,C2<=0.25),\"+\",IF(AND(B2<=0.5,C2>0.25),\"-\",IF(AND(B2>0.5,C2>0.25),\"+-\",\"\")))")
+Timestamp: '2023-05-12 22:06:34'
+Total Count: 1

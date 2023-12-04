@@ -1,0 +1,51 @@
+Context: My workbook records economic indicators of countries across many years.
+Fail Response: []
+Instructions: Summarize the total values of all indicators in 2013 for each country
+  in a new sheet.
+Source Path: \\MAC\Home\Downloads\workspace\output_dataset_512\27_EasyGDPBreakdown\27_EasyGDPBreakdown_source.xlsx
+Success Count: 1
+Success Response:
+- intermediate response:
+  - 'Step 1. Create a new sheet to summarize the total values of all indicators in
+    2013 for each country.
+
+    Action API: @CreateSheet(sheetName="Summary")@'
+  - 'Step 2. Write headers for the new sheet.
+
+    Action API: @Write(range="Summary!A1", value="Country")@
+
+    Action API: @Write(range="Summary!B1", value="Total 2013")@'
+  - 'Step 3. Create a pivot table in the new sheet based on the data from Sheet1.
+
+    Action API: @CreatePivotTable(source="Sheet1!A1:P3686", destSheet="Summary", name="PivotTable1",
+    RowField=["Country"], DataField=["2013"], summarizeFunction="sum")@'
+  - 'Step 4. Rename the header of the pivot table.
+
+    Action API: @Write(range="Summary!B1", value="Total 2013 (USD)")@'
+  msg: []
+  raw response:
+  - 'Step 1. Create a new sheet.
+
+    Action API: @CreateSheet(sheetName="2013 Summary")@'
+  - 'Step 2. Write the headers for the new sheet.
+
+    Action API: @Write(range="Summary!A1", value="Country")@
+
+    Action API: @Write(range="Summary!B1", value="Total 2013")@'
+  - 'Step 3. Calculate the total values of all indicators in 2013 for each country.
+
+    Action API: @CreatePivotTable(source="Sheet1!$A$1:$P$3685", destSheet="Summary",
+    name="PivotTable1", RowField=["Country"], DataField=["2013"], summarizeFunction="sum")@'
+  - 'Step 4. Rename the column C to "Total".
+
+    Action API: @Write(range="Summary!C1", value="Total")@'
+  - Done!
+  refined response:
+  - - CreateSheet(sheetName="Summary")
+  - - Write(range="Summary!A1", value="Country")
+    - Write(range="Summary!B1", value="Total 2013")
+  - - CreatePivotTable(source="Sheet1!A1:P3686", destSheet="Summary", name="PivotTable1",
+      RowField=["Country"], DataField=["2013"], summarizeFunction="sum")
+  - - Write(range="Summary!B1", value="Total 2013 (USD)")
+Timestamp: '2023-05-12 23:30:55'
+Total Count: 1

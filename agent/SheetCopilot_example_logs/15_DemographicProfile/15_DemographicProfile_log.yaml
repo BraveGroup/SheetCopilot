@@ -1,0 +1,42 @@
+Context: My workbook records information of respondents.
+Fail Response: []
+Instructions: Summarize the count of respondents by "Highest Educational Attainment"
+  in a new sheet and display the result on a bar chart. Turn on the legends on the
+  left, display the data labels, and set the chart title as "HEA statistics".
+Source Path: \\MAC\Home\Downloads\workspace\output_dataset_512\15_DemographicProfile\15_DemographicProfile_source.xlsx
+Success Count: 1
+Success Response:
+- intermediate response:
+  - 'Step 1. Create a new sheet to summarize the count of respondents.
+
+    Action API: @CreateSheet(sheetName="HEA Summary")@'
+  - "Step 2. Write headers for the new sheet.\nAction API: @Write(range=\"HEA Summary!A1\"\
+    , value=\"Highest Educational Attainment\")@\n           @Write(range=\"HEA Summary!B1\"\
+    , value=\"Count\")@"
+  - Done!
+  msg: []
+  raw response:
+  - 'Step 1. Create a new sheet.
+
+    Action API: @CreateSheet(sheetName="HEA Summary")@'
+  - 'Step 2. Write the header of the summary table.
+
+    Action API: @Write(range="HEA Summary!A1", value="Highest Educational Attainment")@
+
+    Action API: @Write(range="HEA Summary!B1", value="Count")@'
+  - "Step 3. Count the number of respondents for each \"Highest Educational Attainment\"\
+    \ and write the results to the new sheet.\nAction API: @CreatePivotTable(source=\"\
+    Sheet1!A1:D41\", destSheet=\"HEA Summary\", name=\"HEA Pivot\", RowField=[\"Highest\
+    \ Educational Attainment\"], DataField=[\"Respondents\"], summarizeFunction=\"\
+    count\")@\n           @CreateChart(source=\"HEA Summary!A1:B6\", destSheet=\"\
+    HEA Summary\", chartType=\"bar\", chartName=\"HEA Chart\", XField=1, YField=[2])@\n\
+    \           @SetChartTitle(chartName=\"HEA Chart\", title=\"HEA statistics\")@\n\
+    \           @SetChartHasLegend(chartName=\"HEA Chart\", hasLegend=True)@\n   \
+    \        @AddDataLabels(chartName=\"HEA Chart\")@\n           @SetChartMarker(chartName=\"\
+    HEA Chart\", style=[\"circle\", \"square\", \"diamond\", \"triangle\"])@"
+  refined response:
+  - - CreateSheet(sheetName="HEA Summary")
+  - - Write(range="HEA Summary!A1", value="Highest Educational Attainment")
+    - Write(range="HEA Summary!B1", value="Count")
+Timestamp: '2023-05-12 21:11:47'
+Total Count: 1
