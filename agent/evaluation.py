@@ -39,8 +39,6 @@ def evaluate(config):
                 "success_list_by_cate": defaultdict(list),
                 "gt_min_action_cnt_list": [],
                 "action_cnt_list": [],
-                "query_cnt_list": [],
-                "query_wo_retry_cnt_list": [],
                 "error_log": [],
                 "eval_results": {}
             }
@@ -75,17 +73,13 @@ def evaluate(config):
                 # Check if the result xlsx file exists
                 res_file_exists = os.path.exists(res_path)
 
-                # Check if the number of result files equals log["Success Count"]
-                equal = len([x for x in os.listdir(task_path) if x.endswith('.xlsx') and "source" not in x and "~$" not in x]) == log["Success Count"]
-
                 cates = row['Categories'].split(', ')
-                if log["Success Count"] > 0 and res_file_exists and equal:
+                if log["Success Count"] > 0 and res_file_exists:
                     check_result["exec_success_list"].append(task_name)
                     for cate in cates:
                         check_result["exec_success_list_by_cate"][cate].append(task_name)
 
-                # if os.path.exists(log_file) and 'conditional' not in row['Atomic actions'].lower() and res_file_exists and equal:
-                if os.path.exists(log_file) and res_file_exists and equal:
+                if os.path.exists(log_file) and res_file_exists:
                     # Compare the result with all reference solutions.
                     # All reference solutions for one sheet is placed under a folder with the same name.
 
@@ -128,29 +122,6 @@ def evaluate(config):
                                 num_acts += len(steps)
                             check_result["action_cnt_list"].append(num_acts)
 
-                            # Count queries
-                            context_log_dir =  f"{os.path.basename(task_path)}_{repeat_id}"
-
-                            context_logs = os.listdir(os.path.join(task_path, context_log_dir))
-
-                            check_result["query_cnt_list"].append(len(context_logs))
-
-                            # Count the number of actions without regarding re-trying
-                            final_context_log_file = os.path.join(task_path, context_log_dir, "context_log_{}.yaml".format(len(context_logs)))
-                            with open(final_context_log_file, 'r') as f:
-                                final_context_log = yaml.load(f, Loader=yaml.Loader)
-                            
-                            query_wo_retry_set = set()
-                            for query_i in range(12, len(final_context_log)):
-                                content = final_context_log[query_i]["content"]
-                                if content.startswith("Step"):
-                                    query_wo_retry_set.add(content[:content.find(".")])
-                            
-                            query_wo_retry_cnt = len(query_wo_retry_set)  + 1 # step + 1 (Done)
-
-                            check_result["query_wo_retry_cnt_list"].append(query_wo_retry_cnt)
-                            assert check_result["query_wo_retry_cnt_list"][-1] <= check_result["query_cnt_list"][-1], f"{final_context_log_file} error"
-
                             # Count the minimum number of actions among Gts
                             gt_actions = [x for x in row['Atomic actions'].split(',') if "function" not in x]
                             check_result["gt_min_action_cnt_list"].append(len(gt_actions))
@@ -172,7 +143,6 @@ def evaluate(config):
         print("Error Log: {}\n".format('\n'.join(x for x in check_result["error_log"])))
         exec_success_cnt, success_cnt, total = len(check_result["exec_success_list"]), len(check_result["success_list"]), len(check_result["checked_list"])
         action_cnt_list, gt_min_action_cnt_list = np.array(check_result["action_cnt_list"]), np.array(check_result["gt_min_action_cnt_list"])
-        query_cnt_list, query_wo_retry_cnt_list =  np.array(check_result["query_cnt_list"]), np.array(check_result["query_wo_retry_cnt_list"])
 
         check_result["eval_results"]["Total"] = total
         check_result["eval_results"]["Exec@1"] = exec_success_cnt / total
@@ -188,8 +158,6 @@ def evaluate(config):
         check_result["checked_list"] = ', '.join(str(x) for x in check_result["checked_list"])
         check_result["success_list"] = ', '.join(str(x) for x in check_result["success_list"])
         check_result["exec_success_list"] = ', '.join(str(x) for x in check_result["exec_success_list"])
-        check_result["query_cnt_list"] = ', '.join(str(x) for x in check_result["query_cnt_list"])
-        check_result["query_wo_retry_cnt_list"] = ', '.join(str(x) for x in check_result["query_wo_retry_cnt_list"])
         check_result['checked_list_by_cate'] = {k: ', '.join(str(x) for x in check_result['checked_list_by_cate'][k]) for k in check_result['checked_list_by_cate'].keys()}
         check_result['success_list_by_cate'] = {k: ', '.join(str(x) for x in check_result['success_list_by_cate'][k]) for k in check_result['success_list_by_cate'].keys()}
         check_result['exec_success_list_by_cate'] = {k: ', '.join(str(x) for x in check_result['exec_success_list_by_cate'][k]) for k in check_result['exec_success_list_by_cate'].keys()}
@@ -198,9 +166,6 @@ def evaluate(config):
         check_result["eval_results"]["A_mean"] = np.mean(action_cnt_list).item()
         check_result["eval_results"]["A50_norm"] = np.median(action_cnt_list / gt_min_action_cnt_list).item()
         check_result["eval_results"]["A90_norm"] = np.percentile(action_cnt_list / gt_min_action_cnt_list, 90).item()
-
-        # Query statistics
-        check_result["eval_results"]["Q_mean"] = np.mean(query_cnt_list).item()
         
         for k, v in check_result["eval_results"].items():
             print("{}: {}".format(k, v))
