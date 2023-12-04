@@ -129,6 +129,8 @@ To dive deeper into the dataset collection details, refer to this [tutorial](/da
 
 We implement each API with the ```pywin32``` library. Please refer to [API difinitions](/agent/Agent/xwAPI.py) to see the details. To compare with our SheetCopilot, your own agents should take these APIs as the action space.
 
+The SheetCopilot agent code will be released soon...
+
 ## For Google Sheets
 
 Open a GoogleSheets spreadsheet and install SheetCopilot on the Google Workspace Market like this:
@@ -171,10 +173,10 @@ results
 [Sheet Name] and [No.] are the items in columns A and B in ```dataset.xlsx``` (e.g. 9_BoomerangSales
 ). [Repeat_NO.] is used to differentiate multiple repeats of the same task. If you run each task only once (controlled by ```repeat```), [Repeat_NO.] is 1.
 
-Your method should also record a log for each task, saving the content of the planning process (```agent/log_example.yaml``` shows an example of the required log format.). As differrent agents may present plans of various formats, we recommend that each method output each step using this format:
+Your method should also record a log for each task, saving the content of the planning process (```agent/log_example.yaml``` shows an example of the required log format.). As differrent agents may present plans in various formats, we recommend that each method output each step using this format:
 ```
 Step X. [Thought]
-Action API: @[Action call]@'
+Action API: @[Action call]@
 ```
 
 For example,
@@ -191,7 +193,6 @@ python evaluation.py
 ```
 
 The evaluation results will be recorded in a file named ```eval_result.yaml``` under the result folder.
-
 
 
 The evaluation can restart from a checkpoint if it has been aborted.
