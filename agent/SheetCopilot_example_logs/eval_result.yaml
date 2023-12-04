@@ -1,0 +1,59 @@
+check_result_each_repeat:
+  1:
+    action_cnt_list: 11, 1, 5, 3, 4, 6
+    checked_list: 1_BoomerangSales, 2_BoomerangSales, 13_DemographicProfile, 15_DemographicProfile,
+      25_EasyGDPBreakdown, 27_EasyGDPBreakdown, 98_Invoices, 102_Invoices, 136_PricingTable,
+      140_PricingTable, 212_XYScatterPlot, 215_XYScatterPlot
+    checked_list_by_cate:
+      Charts: 1_BoomerangSales, 2_BoomerangSales, 15_DemographicProfile, 25_EasyGDPBreakdown,
+        212_XYScatterPlot
+      Entry and manipulation: 1_BoomerangSales, 2_BoomerangSales, 15_DemographicProfile,
+        25_EasyGDPBreakdown, 27_EasyGDPBreakdown, 136_PricingTable, 140_PricingTable,
+        215_XYScatterPlot
+      Formatting: 98_Invoices, 102_Invoices
+      Formula: 1_BoomerangSales, 2_BoomerangSales, 136_PricingTable, 140_PricingTable,
+        215_XYScatterPlot
+      Management: 13_DemographicProfile, 25_EasyGDPBreakdown
+      Pivot Table: 1_BoomerangSales, 2_BoomerangSales, 15_DemographicProfile, 27_EasyGDPBreakdown
+    error_log: []
+    eval_results:
+      A50_norm: 1.7857142857142856
+      A90_norm: 2.75
+      A_mean: 5.0
+      Charts Exec & Pass: 3/5 & 2/5
+      Entry and manipulation Exec & Pass: 6/8 & 3/8
+      Exec@1: 0.8333333333333334
+      Formatting Exec & Pass: 2/2 & 1/2
+      Formula Exec & Pass: 4/5 & 2/5
+      Management Exec & Pass: 1/2 & 1/2
+      Pass@1: 0.5
+      Pivot Table Exec & Pass: 3/4 & 2/4
+      Total: 12
+    exec_success_list: 1_BoomerangSales, 13_DemographicProfile, 15_DemographicProfile,
+      27_EasyGDPBreakdown, 98_Invoices, 102_Invoices, 136_PricingTable, 140_PricingTable,
+      212_XYScatterPlot, 215_XYScatterPlot
+    exec_success_list_by_cate:
+      Charts: 1_BoomerangSales, 15_DemographicProfile, 212_XYScatterPlot
+      Entry and manipulation: 1_BoomerangSales, 15_DemographicProfile, 27_EasyGDPBreakdown,
+        136_PricingTable, 140_PricingTable, 215_XYScatterPlot
+      Formatting: 98_Invoices, 102_Invoices
+      Formula: 1_BoomerangSales, 136_PricingTable, 140_PricingTable, 215_XYScatterPlot
+      Management: 13_DemographicProfile
+      Pivot Table: 1_BoomerangSales, 15_DemographicProfile, 27_EasyGDPBreakdown
+    gt_min_action_cnt_list: 7, 1, 2, 1, 2, 5
+    matched_gt_lst:
+    - 1_BoomerangSales_gt1.xlsx
+    - 4_DemographicProfile_gt1.xlsx
+    - 3_EasyGDPBreakdown_gt1.xlsx
+    - 1_Invoices_gt2.xlsx
+    - 5_PricingTable_gt2.xlsx
+    - 1_XYScatterPlot_gt2.xlsx
+    success_list: 1_BoomerangSales, 13_DemographicProfile, 27_EasyGDPBreakdown, 98_Invoices,
+      140_PricingTable, 212_XYScatterPlot
+    success_list_by_cate:
+      Charts: 1_BoomerangSales, 212_XYScatterPlot
+      Entry and manipulation: 1_BoomerangSales, 27_EasyGDPBreakdown, 140_PricingTable
+      Formatting: 98_Invoices
+      Formula: 1_BoomerangSales, 140_PricingTable
+      Management: 13_DemographicProfile
+      Pivot Table: 1_BoomerangSales, 27_EasyGDPBreakdown

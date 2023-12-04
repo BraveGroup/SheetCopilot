@@ -45,17 +45,17 @@ def evaluate(config):
 
         check_result = eval_result["check_result_each_repeat"][repeat_id]
 
-        remaining_task_cnt = len(task_df.iloc[:]) - len(check_result["checked_list"])
-
-        assert remaining_task_cnt > 0, "No tasks to be evaluated"
-        
         num_tasks = len([x for x in os.listdir(save_path) if os.path.isdir(os.path.join(save_path, x))])
+
+        remaining_task_cnt = num_tasks - len(check_result["checked_list"])
+        assert remaining_task_cnt > 0, "No tasks to be evaluated"
+
         with tqdm.tqdm(total=remaining_task_cnt, desc=f"Processing the remaining {remaining_task_cnt}/{num_tasks} results of repeat {repeat_id}") as pbar:
             for index, row in task_df.iloc[:].iterrows():
                 if index + 1 in check_result["checked_list"]: continue
 
                 # Result file
-                task_name = f"{row['No.']}_{row['Sheet Name']}"
+                task_name = f"{index + 1}_{row['Sheet Name']}"
 
                 task_path = os.path.join(save_path, task_name)
                 if not os.path.exists(task_path):
