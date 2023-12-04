@@ -9,6 +9,8 @@ from datetime import datetime
 import argparse
 from collections import defaultdict
 
+USE_NO_AND_SHEETNAME = False
+
 def evaluate(config):
     task_path = config['path']['task_path']
     gt_path = config['path']['gt_path']
@@ -55,7 +57,10 @@ def evaluate(config):
                 if index + 1 in check_result["checked_list"]: continue
 
                 # Result file
-                task_name = f"{index + 1}_{row['Sheet Name']}"
+                if USE_NO_AND_SHEETNAME:
+                    task_name = f"{row['No.']}_{row['Sheet Name']}"
+                else:
+                    task_name = f"{index + 1}_{row['Sheet Name']}"
 
                 task_path = os.path.join(save_path, task_name)
                 if not os.path.exists(task_path):
@@ -180,6 +185,7 @@ def evaluate(config):
 
 parser = argparse.ArgumentParser(description='Process config.')
 parser.add_argument('--config', '-c', default="./config/config.yaml", type=str, help='path to config file')
+
 args = parser.parse_args()
 
 if __name__ == '__main__':
