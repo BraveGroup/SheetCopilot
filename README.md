@@ -54,7 +54,7 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 # Setup
 ### 1. Prepare the Conda environment
 
-SheetCopilot is pnly available on **Windows**. Python 3.10 is required to support the asyncronous implementation of SheetCopilot.
+SheetCopilot is only available on **Windows**. Python 3.10 is required to support the asyncronous implementation of SheetCopilot.
 
 ```
 conda create -n sheetcopilot python=3.10
@@ -214,7 +214,7 @@ python evaluation.py
 
 The evaluation results will be recorded in a file named ```eval_result.yaml``` under the result folder.
 
-The evaluation can restart from a checkpoint if it has been aborted.
+The evaluation can restart from a checkpoint if it has been aborted. If you want to re-evaluate, just delete the ```eval_result.yaml``` in the result folder.
 
 **Important:** NOTE that
 - Every new sheet must be created to the left of the very first sheet for correct matching with the references since sheet names are not to be checked.

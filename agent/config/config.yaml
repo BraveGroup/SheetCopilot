@@ -1,6 +1,6 @@
 path:
   source_path: ../dataset/task_sheets
-  save_path: PATH/To/Results
+  save_path: ./SheetCopilot_example_logs
   task_path: ../dataset/dataset.xlsx
   gt_path: ../dataset/task_sheet_answers_v2
 
