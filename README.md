@@ -51,6 +51,9 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 
 - **[2023/5/19]** 👷🏻‍♂️ SheetCopilot was completed.
 
+## ToDo
+- Upload the simple code of SheetCopilot agent
+
 # Setup
 ### 1. Prepare the Conda environment
 
@@ -230,14 +233,14 @@ The performaces of SheetCopilot with 3 leading LLMs as its back-end on ```datase
 | GPT-4         | 65.0%  | **55.0%**  | **1.33** | **2.00** |
 | Claude        | 80.0%  | 40.0%  | 1.50 | 4.40 |
 
-The performaces of SheetCopilot and a VBA-based method on ```dataset/dataset.xlsx``` using ```dataset/task_sheet_answers``` as the ground truths.
+The performaces of SheetCopilot and a VBA-based method evaluated on ```dataset/dataset.xlsx``` using ```dataset/task_sheet_answers``` as the ground truths.
 
 | Methods       | Exec@1 | Pass@1 |
 |---------------|--------|--------|
 | GPT-3.5-Turbo | 87.3%  | 44.3%  |
 | VBA-based     | 77.8%  | 16.3%  |
 
-## The aspects of a spreadsheet SheetCopilot controls
+## The aspects of a spreadsheet SheetCopilot can control
 (1) **Manipulation**: Writing values and formulas, deleting cells, inserting a row/column, autofilling, copy-pasting values, find-and-replacing, setting hyperlinks, removing duplicates, creating sheets, clearing formats.
 
 (2) **Management**: Sorting, filtering, and freezing panes.
@@ -256,9 +259,19 @@ This video shows that SheetCopilot conducts GDP data analysis successfully.
 
 [![GDP analysis Demo](./assets/DemoCover.png)](./assets/EasyGDP_Demo.mp4)
 
-This video shows SheetCopilot deployed on Google Sheets.
+The video below shows SheetCopilot deployed on Google Sheets.
 
 [![ See the magic of SheetCopilot on Google Sheets - Control your sheets like chatting ](https://res.cloudinary.com/marcomontalbano/image/upload/v1686982272/video_to_markdown/images/youtube--69Qu7v55fBY-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://youtu.be/69Qu7v55fBY " See the magic of SheetCopilot on Google Sheets - Control your sheets like chatting ")
+
+You can upload ```task_sheets/BoomerangSales.xlsx``` and type in these instructions to reproduce the results in the demo:
+
+1. Calculate the revenue for each transaction in the sales table considering corresponding retail price and discount.
+2. Highlight the Revenue cells greater than 500 in blue text.
+3. Create a pivot table in a new sheet to show the counts of the websites on which boomerangs were sold.
+4. Plot a bar chart for the pivot table in the same sheet.
+5. Set the y-axis title as "Count" and turn off legends.
+6. Create another pivot table in a new sheet to show the revenue sums of each product.
+7. Plot a pie chart for the pivot table with chart title "Revenue by Product" in this sheet.
 
 <br/>
 
