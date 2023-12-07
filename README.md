@@ -177,6 +177,8 @@ results
 
 [Order] is the row index of the task minus 1 and [Sheet Name] are the items of column A in ```dataset.xlsx```. [Repeat_NO.] is used to differentiate multiple repeats of the same task. If you run each task only once (controlled by ```repeat```), [Repeat_NO.] is 1.
 
+```1_BoomerangSales_log.yaml``` is the running log of the task saving the content of the planning process. Likewise, your method should also record a log for each task.
+
 You can also use the "[No.]_[Sheet Name]" naming convention as follows ([No.] are the items of column B in ```dataset.xlsx```):
 ```
 results
@@ -194,9 +196,7 @@ results
 ```
 You should set the global variable ```USE_NO_AND_SHEETNAME``` in ```evaluation.py``` as True to use such a naming convention.
 
-```1_BoomerangSales_log.yaml``` is the running log of the task saving the content of the planning process. Likewise, your method should also record a log for each task.
-
-As differrent agents may present plans in various formats, we recommend that each method outputs each step using this format:
+As differrent agents may present plans in various formats, we recommend that each method outputs each step using this Chain-of-Thoughts (CoT) format:
 ```
 Step X. [Thought]
 Action API: @[Action call]@
