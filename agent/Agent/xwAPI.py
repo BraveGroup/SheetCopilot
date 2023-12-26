@@ -1,14 +1,10 @@
-import xlwings as xw
-from xlwings import Range
 from xlwings import constants as win32c
-from  .constants import constants
+from .constants import constants
 import win32api
 import win32com.client as win32
-from .AtomicAction import Action
-from functools import wraps
-from typing import Any, Tuple, Callable, Optional, Union, List
+from typing import Any, Optional, List
 from openpyxl.utils import get_column_letter
-import sys, os, re
+import os
 import itertools
 
 class xwBackend():
@@ -682,9 +678,9 @@ class xwBackend():
 
         handle = source.FormatConditions.Add(Type = constants.FormatConditionType['expression'], Formula1 = formula)
         if color:
-            handle.Font.ColorIndex = constants.ColorIndex[color]
+            handle.Font.ColorIndex = constants.ColorIndex[color.lower()]
         if fillColor:
-            handle.Interior.ColorIndex = constants.ColorIndex[fillColor]
+            handle.Interior.ColorIndex = constants.ColorIndex[fillColor.lower()]
         if not bold is None:
             handle.Font.Bold = bold
         if not italic is None:
@@ -1278,7 +1274,7 @@ class xwBackend():
         summarizeFunction: 'sum', 'count', 'average', 'max', 'min', 'product', 'countNumbers', 'standardDeviation', 'standardDeviationP', 'var', or 'varP'
         
         Example:
-        CreatePivotTable('A1:B10', 'PivotTable1', RowField=['Column A'], ColumnField=['Column B'], DataField=['Column B'])
+        CreatePivotTable('Sheet1!A1:B10', 'PivotTable1', RowField=['Column A'], ColumnField=['Column B'], DataField=['Column B'])
         '''
         # check if the pivot table name exists
         for sheet in self.activeWB.Worksheets:
@@ -1288,6 +1284,7 @@ class xwBackend():
         # check if the destSheet exists
         if destSheet not in [sheet.Name for sheet in self.activeWB.Worksheets]:
             raise ValueError(f'Sheet {destSheet} does not exist.')
+        
         # # check if the four fields are letters
         # invalid_fields = []
         # if any([len(x) > 1 for x in RowField]):
@@ -1302,29 +1299,42 @@ class xwBackend():
         # if len(invalid_fields) > 0:
         #     raise ValueError('Illegal fields! the fields in {} can only be column indices (i.e., letters A to Z)'.format(",".join(invalid_fields)))
         
-        sheet = self.activeWB.Worksheets(destSheet)
+        # sheet = self.activeWB.Worksheets(destSheet)
         sourceRange = self.toRange(source)
-        
+        sourceRange_sheet = sourceRange.Worksheet
         # Sometimes the LLM misses the header row, so we manually add it
         if sourceRange.Row != 1:
-            new_starting_cell = sheet.Cells(1, sourceRange.Column)
-            sourceRange = sheet.Range(new_starting_cell, sheet.Cells(new_starting_cell.Row + sourceRange.Rows.Count, sourceRange.Column + sourceRange.Columns.Count - 1))
+            new_starting_cell = sourceRange_sheet.Cells(1, sourceRange.Column)
+            sourceRange = sourceRange_sheet.Range(new_starting_cell, sourceRange_sheet.Cells(new_starting_cell.Row + sourceRange.Rows.Count, sourceRange.Column + sourceRange.Columns.Count - 1))
             
         pc = self.activeWB.PivotCaches().Create(SourceType=win32c.PivotTableSourceType.xlDatabase, SourceData=sourceRange)
         destRange = self.GetBlankArea(destSheet)
 
         pt = pc.CreatePivotTable(TableDestination=destRange, TableName=name)
         for field in RowField:
-            pt.PivotFields(field).Orientation = win32c.PivotFieldOrientation.xlRowField
+            try:
+                pt.PivotFields(field).Orientation = win32c.PivotFieldOrientation.xlRowField
+            except:
+                raise Exception(f"The field {field} is not included in the pivot table source range and cannot be selected as a row field!")
         for field in ColumnField:
-            pt.PivotFields(field).Orientation = win32c.PivotFieldOrientation.xlColumnField
+            try:
+                pt.PivotFields(field).Orientation = win32c.PivotFieldOrientation.xlColumnField
+            except:
+                raise Exception(f"The field {field} is not included in the pivot table source range and cannot be selected as a column field!")
         # pc.CreatePivotTable(TableDestination=destRange, TableName=name)
         # pt = sheet.PivotTables(name)
 
         for field in PageField:
-            pt.PivotFields(field).Orientation = win32c.PivotFieldOrientation.xlPageField
+            try:
+                pt.PivotFields(field).Orientation = win32c.PivotFieldOrientation.xlPageField
+            except:
+                raise Exception(f"The field {field} is not included in the pivot table source range and cannot be selected as a page field!")
+        
         for field in DataField:
-            pt.AddDataField(pt.PivotFields(field), Function = constants.SummarizationFunction[summarizeFunction])
+            try:
+                pt.AddDataField(pt.PivotFields(field), Function = constants.SummarizationFunction[summarizeFunction])
+            except:
+                raise Exception(f"The field {field} is not included in the pivot table source range and cannot be selected as a data field!")
             #pt.PivotFields(field).Orientation = win32c.PivotFieldOrientation.xlDataField
             # pt.PivotFields(field).Function = constants.ConsolidationFunction[summarizeFunction]
 
@@ -1468,13 +1478,10 @@ class xwBackend():
 
         self.activeWB.Sheets(sheetName).Activate()
 
-    def GetSheetsState(self, add_example_data2feedback=False) -> str:
+    def GetSheetsState(self) -> str:
         '''
         Get the state of all sheets.
 
-        Param:
-        @ add_example_data2feedback: add example data of each column to the description
-        
         Returns:
         str -- the state of the sheets.
         '''
@@ -1492,22 +1499,7 @@ class xwBackend():
                     headers = [headers]
                 headers = {get_column_letter(i): header for i, header in enumerate(headers, start=1)}
                 
-                if add_example_data2feedback:
-                    col_example_data_str = []
-                    # Iterate through the columns
-                    for column_index, (col_letter, header) in enumerate(headers.items(), start=1):  # Assuming you want the first four columns
-                        column = ws.Columns(column_index)
-                        cell_range = column.Range("A1:A5")  # Adjust the range as needed
-
-                        # Get values from the cells in the range
-                        values = [str(cell.Text) for cell in cell_range]
-                        data_type = ws.Cells(2, column_index).NumberFormat.replace('G/通用格式', 'General')
-                        
-                        col_example_data_str.append("{}: {{".format(col_letter) + f"Header: {values[0]}, Data type: {data_type}, 4 sample rows: [{', '.join(values[1:])}]" + '}')
-                    
-                    cell_state = 'Sheet \"{}\" has {} columns ({}) and {} rows (1 header row and {} data rows)'.format(ws.Name, NumberOfColumns, ', '.join(col_example_data_str), NumberOfRows, NumberOfRows-1)
-                else:                    
-                    cell_state = 'Sheet \"{}\" has {} columns (Headers are {}) and {} rows (1 header row and {} data rows)'.format(ws.Name, NumberOfColumns, ', '.join(["{}: \"{}\"".format(col_letter, header) for col_letter, header in headers.items()]), NumberOfRows, NumberOfRows-1)
+                cell_state = 'Sheet \"{}\" has {} columns (Headers are {}) and {} rows (1 header row and {} data rows)'.format(ws.Name, NumberOfColumns, ', '.join(["{}: \"{}\"".format(col_letter, header) for col_letter, header in headers.items()]), NumberOfRows, NumberOfRows-1)
             
             # Add chart descriptions
             # Iterate through the shapes to find chart objects
@@ -1543,6 +1535,4 @@ class xwBackend():
 if __name__ == '__main__':
     bot = xwBackend()
     #bot.Write('A1', [['1']])
-    bot.CreatePivotTable('Sheet1!A1:B3', 'Sheet1', 'PivotTable1', ['A'], [], [], ['B'], 'min')
-    bot.AutoFill('Sheet1!G2', 'Sheet1!G2:G36')
-    bot.CopyPaste('A1', 'A2')
+    bot.CreatePivotTable(source="Sheet1!A2:G2001", destSheet="ProductSummary", name="ProductPivot", RowField=["Product"], DataField=["Revenue"], summarizeFunction="sum")

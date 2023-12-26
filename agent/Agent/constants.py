@@ -1,3 +1,5 @@
+from win32com.client import constants as c
+
 class constants:
     ChartType = {
         '3DArea': -4098,
@@ -68,6 +70,7 @@ class constants:
         'SurfaceTopView': 85,
         'SurfaceTopViewWireframe': 86,
         'SurfaceWireframe': 84,
+        'Scatter': -4169,
         'XYScatter': -4169,
         'XYScatterLines': 74,
         'XYScatterLinesNoMarkers': 75,
@@ -245,3 +248,20 @@ class constants:
         'right': -4152,
         'justify': -4130
     }
+
+    # Refer to https://learn.microsoft.com/en-us/office/vba/api/excel.xlconsolidationfunction
+    SummarizationFunction = {
+    'sum': c.xlSum,
+    'count': c.xlCount,
+    'countNumbers': c.xlCountNums,
+    'average': c.xlAverage,
+    'avg': c.xlAverage,
+    'max': c.xlMax,
+    'min': c.xlMin,
+    'product': c.xlProduct,
+    'var': c.xlVar,
+    'varP': c.xlVarP,
+    'standardDeviation': c.xlStDev,
+    'standardDeviationP': c.xlStDevP
+    }
+    # 'sum', 'count', 'average', 'max', 'min', 'product', 'countNumbers', 'standardDeviation', 'standardDeviationP', 'var', or 'varP'

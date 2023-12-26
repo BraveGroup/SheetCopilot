@@ -1,7 +1,46 @@
 path:
   source_path: ../dataset/task_sheets
-  save_path: ./SheetCopilot_example_logs
+  save_path: ./DIR_to_Save
   task_path: ../dataset/dataset.xlsx
   gt_path: ../dataset/task_sheet_answers_v2
 
+worker: 1
 repeat: 1
+
+Agent:
+  API_backend: 'xw'
+  APP_backend: 'excel'
+  prompt_path: config/prompt.yaml
+  api_doc_path: config/API_document.yaml
+  use_doc_in_syspromt: true
+  use_ext_doc: true
+  use_same_LLM: true
+  use_oracle_API_doc: false
+  add_example_data2feedback: false
+
+  max_cycle_times: 20
+  max_error_count: 999
+
+  ChatGPT_1:
+    model_name: 'gpt-3.5-turbo'
+    prompt_format: gpt-chat-prompt
+    max_total_tokens: 16384
+    max_new_tokens: 256
+    topk: 0
+    temperature: 0.4
+    timeout: 50
+    max_retries: 20
+    sleep_time: 20
+    api_base: https://api.openai.com/v1
+    api_keys: [
+    ]
+  ChatGPT_2:
+    temperature: 0.4
+    max_new_tokens: 256
+    topk: 0
+    timeout: 50
+    max_retries: 20
+    sleep_time: 20
+    api_base: https://api.openai.com/v1
+    api_keys: [
+    ]

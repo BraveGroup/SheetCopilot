@@ -2,3 +2,4 @@ openai
 pywin32
 xlwings=0.30.4
 requests
+colorama

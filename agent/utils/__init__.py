@@ -1,3 +1,5 @@
+from .ChatGPT import ChatGPT
+from .StateMachine import StateMachine
 from .compare_sheets import compare_workbooks
 
 action2API = {
@@ -50,3 +52,12 @@ action2API = {
     "Set summary type": "SetPivotTableSummaryFunction",
     "Sort Pivot Table": "SortPivotTable"
 }
+
+from colorama import Fore, Style
+
+def print_dialog(context):
+    for message in context:
+        if message['role'] in ['system', 'user', 'human']:
+            print(Fore.YELLOW, f"{message['role']}] >>>\n{message['content']}\n<<<"); print(Fore.RESET)
+        else:
+            print(Fore.CYAN, f"{message['role']}] >>>\n{message['content']}\n<<<"); print(Fore.RESET)
