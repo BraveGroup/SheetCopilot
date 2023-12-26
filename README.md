@@ -27,11 +27,11 @@
 
 We release the SheetCopilot  agent as well as the evaluation environment in this repository.
 
-SheetCopilot is an assistant agent that manipulate spreadsheets by following user commands. It breaks new ground in human-computer interaction, opening up possibilities for enabling non-expert users to complete their mandane work on complex software (e.g. Google sheets and Excel) via a language interface.
+SheetCopilot is an assistant agent that manipulates spreadsheets by following user commands. It breaks new ground in human-computer interaction, opening up possibilities for enabling non-expert users to complete their mundane work on complex software (e.g. Google Sheets and Excel) via a language interface.
 
 ## What's New
 - **[2023/11/15]** 🛠 SheetCopilot equipped with Chain-of-Thoughts and external document retrieval was released.
-- **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets. Check out our google sheets plugin store [page](https://workspace.google.com/u/0/marketplace/app/sheetcopilot/393386705978) and watch this [tutorial](https://sheetcopilot.github.io/support.html) for install and usage guide.
+- **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets. Check out our Google Sheets plugin store [page](https://workspace.google.com/u/0/marketplace/app/sheetcopilot/393386705978) and watch this [tutorial](https://sheetcopilot.github.io/support.html) for installation and usage guide.
 
 - **[2023/10/27]** 🛠 **More ground truths!** We added more reference solutions to our benchmark (```dataset/task_sheet_answers_v2```) to obtain more accurate evaluation results.
 
@@ -55,7 +55,7 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 # Setup
 ### 1. Prepare the Conda environment
 
-SheetCopilot is only available on **Windows**. Python 3.10 is required to support the asyncronous implementation of SheetCopilot.
+SheetCopilot is only available on **Windows**. Python 3.10 is required to support the asynchronous implementation of SheetCopilot.
 
 ```
 conda create -n sheetcopilot python=3.10
@@ -69,7 +69,7 @@ pip install -r requirements.txt
 
 
 # Dataset
-We release a spreadsheet task dataset containing 28 workbooks and 221 tasks applied to these workbooks. Each task is given one or more hand-made solutions.
+We released a spreadsheet task dataset containing 28 workbooks and 221 tasks applied to these workbooks. Each task is given one or more hand-made solutions.
 
 Here is the overview of the dataset:
 
@@ -78,7 +78,7 @@ Here is the overview of the dataset:
 </p>
 <br/>
 
-Our datset contains diverse task categories and involves a wide range of operations:
+Our dataset contains diverse task categories and involves a wide range of operations:
 
 <p align="center">
 <img src="assets/CatePropAndVerbNoun.png" width="85%">
@@ -100,11 +100,11 @@ Our dataset provides tasks with diverse complexity:
 - **Chart**: CreateChart, SetChartTrendline, SetChartTitle, SetChartHasAxis, SetChartAxis, SetChartHasLegend, SetChartLegend, SetChartType, AddChartErrorBars, RemoveChartErrorBars, AddDataLabels, RemoveDataLabels, SetChartMarker
 - **Pivot Table**: CreatePivotTable, CreateChartFromPivotTable, CreateSheet, RemoveSheet
 
-This dataset can be used to evaluate any spreadsheet agent including RL, LLM-based or rule-based methods.
+This dataset can be used to evaluate any spreadsheet agent including RL, LLM-based, or rule-based methods.
 
 In the ```dataset``` folder, ```dataset.xlsx``` lists the 221 tasks, containing the target workbook name, task number, instruction, task categories, and involved atomic actions.
 
-The fields are explained one-by-one as follows:
+The fields are explained one by one as follows:
 
 - ```Sheet Name```: The name of the sheet this task is applied to.
 - ```No.```: The number of this task.
@@ -116,9 +116,9 @@ The fields are explained one-by-one as follows:
 
 The ```task_sheets``` folder contains the 28 evaluation workbooks these tasks applied to.
 
-The ```task_sheet_answers``` folder contains the reference solutions of the tasks. Each solution consists of a reference workbook showing the expected outcome of the corresponding task and a *.yaml file listing the necessary sheet states to compare. If the necessary states of the result matches one of the references, the result is seen as correct. (The v1 version is used in our paper while the v2 version contains more reference solutions collected after our paper was submitted)
+The ```task_sheet_answers``` folder contains the reference solutions of the tasks. Each solution consists of a reference workbook showing the expected outcome of the corresponding task and a *.yaml file listing the necessary sheet states to compare. If the necessary states of the result matche those of one of the references, the result is seen as correct. (The v1 version is used in our paper while the v2 version contains more reference solutions collected after our paper was submitted)
 
-Each solution folder (e.g. ```1_BoomerangSales```) contains at least 1 references, which comprises a final spreadsheet (1_BoomerangSales_gt1.xlsx) and a checking list (1_BoomerangSales_gt1_check.yaml). Different tasks needs differnt atomic actions so the checking lists are tailored to corresponding tasks.
+Each solution folder (e.g. ```1_BoomerangSales```) contains at least 1 reference, which comprises a final spreadsheet (1_BoomerangSales_gt1.xlsx) and a checking list (1_BoomerangSales_gt1_check.yaml). Different tasks need different atomic actions so the checking lists are tailored to corresponding tasks.
 
 The ```dataset_20Samples.xlsx``` file lists the 20 selected tasks used to compare the representative LLMs in our experiments (Table 1).
 
@@ -129,13 +129,13 @@ To dive deeper into the dataset collection details, refer to this [tutorial](/da
 ## For Excel
 This repo releases a simplified version of the SheetCopilot agent, whose state machine is able to do CoT reasoning and retrieve external documents.
 
-SheetCopilot calls customized atomic actions to execetue its generated solutions. We implement each atomic action using the ```pywin32``` library. Please refer to [API difinitions](/agent/Agent/xwAPI.py) to see the details. To compare with our SheetCopilot, your own agents should also adopt this action space.
+SheetCopilot calls customized atomic actions to execute its generated solutions. We implement each atomic action using the ```pywin32``` library. Please refer to [API definitions](/agent/Agent/xwAPI.py) to see the details. To compare with our SheetCopilot, your own agents should also adopt this action space.
  
 Before running an experiment, please set max tokens, temperature, model_name, and API keys in ```config/config.yaml```.
 
-You can see two ChatGPT configs in this file - ChatGPT_1 is used to do planning while ChatGPT_2 is used to revise the format of the planning results. You can set ```use_same_LLM: true``` to use ChatGPT_1 to carry out both the two jobs.
+You can see two ChatGPT configs in this file - ChatGPT_1 is used to do planning while ChatGPT_2 is used to revise the format of the planning results. You can set ```use_same_LLM: true``` to use ChatGPT_1 to carry out both two jobs.
 
-The underlying implementation of SheetCopilot is a state machine which implements planning by transitioning among 4 states (See the below figure). ```max_cycle_times``` is used to limit the number of times the agent visits the states.
+The underlying implementation of SheetCopilot is a state machine that implements planning by transitioning among 4 states (See the below figure). ```max_cycle_times``` is used to limit the number of times the agent visits the states.
 
 <p align="center">
 <img src="assets/StateMachine.jpg" width="85%">
@@ -154,7 +154,7 @@ Open an Excel workbook before running this command:
 python interaction.py -c config/config.yaml
 ```
 
-Now you can enter any instrcutions and wait for SheetCoilot to finish them without any intervention.
+Now you can enter any instrcution and wait for SheetCoilot to finish them without any intervention.
 
 ### Example
 To try SheetCopilot quickly, please open ```dataset/task_sheets/BoomerangSales.xlsx``` and then enter these instructions in order:
@@ -175,7 +175,7 @@ To try SheetCopilot quickly, please open ```dataset/task_sheets/BoomerangSales.x
 
 You can also try more vague instructions like: ```Analyze the data and plot charts for the results.```
 
-Afterwards, you may see SheetCopilot create pivot tables and plot proper charts for you (see the figure below).
+Afterward, you may see SheetCopilot create pivot tables and plot proper charts for you (see the figure below).
 
 <p align="center">
 <img src="assets/example_result.png" width="85%">
@@ -226,7 +226,7 @@ results
   └── 221_XYScatterPlot
 ```
 
-[Order] is the row index of the task minus 1 and [Sheet Name] are the items of column A in ```dataset.xlsx```. [Repeat_NO.] is used to differentiate multiple repeats of the same task. If you run each task only once (controlled by ```repeat```), [Repeat_NO.] is 1.
+[Order] is the row index of the task minus 1 and [Sheet Name] is the items of column A in ```dataset.xlsx```. [Repeat_NO.] is used to differentiate multiple repeats of the same task. If you run each task only once (controlled by ```repeat```), [Repeat_NO.] is 1.
 
 ```1_BoomerangSales_log.yaml``` is the running log of the task saving the content of the planning process. Likewise, your method should also record a log for each task.
 
@@ -247,7 +247,7 @@ results
 ```
 You should set the global variable ```USE_NO_AND_SHEETNAME``` in ```evaluation.py``` as True to use such a naming convention.
 
-As differrent agents may present plans in various formats, we recommend that each method outputs each step using this Chain-of-Thoughts (CoT) format:
+As different agents may present plans in various formats, we recommend that each method outputs each step using this Chain-of-Thoughts (CoT) format:
 ```
 Step X. [Thought]
 Action API: @[Action call]@
@@ -276,7 +276,7 @@ The evaluation can restart from a checkpoint if it has been aborted. If you want
 
 ## Evaluation results
 
-The performaces of SheetCopilot with 3 leading LLMs as its back-end on ```dataset/dataset_20Samples.xlsx```.
+The performances of SheetCopilot with 3 leading LLMs as its back-end on ```dataset/dataset_20Samples.xlsx```.
 
 | Models        | Exec@1 | Pass@1 | A50  | A90  |
 |---------------|--------|--------|------|------|
@@ -284,7 +284,7 @@ The performaces of SheetCopilot with 3 leading LLMs as its back-end on ```datase
 | GPT-4         | 65.0%  | **55.0%**  | **1.33** | **2.00** |
 | Claude        | 80.0%  | 40.0%  | 1.50 | 4.40 |
 
-The performaces of SheetCopilot and a VBA-based method evaluated on ```dataset/dataset.xlsx``` using ```dataset/task_sheet_answers``` as the ground truths.
+The performances of SheetCopilot and a VBA-based method evaluated on ```dataset/dataset.xlsx``` using ```dataset/task_sheet_answers``` as the ground truths.
 
 | Methods       | Exec@1 | Pass@1 |
 |---------------|--------|--------|
@@ -292,17 +292,17 @@ The performaces of SheetCopilot and a VBA-based method evaluated on ```dataset/d
 | VBA-based     | 77.8%  | 16.3%  |
 
 ## The aspects of a spreadsheet SheetCopilot can control
-(1) **Manipulation**: Writing values and formulas, deleting cells, inserting a row/column, autofilling, copy-pasting values, find-and-replacing, setting hyperlinks, removing duplicates, creating sheets, clearing formats.
+(1) **Manipulation**: Writing values and formulas, deleting cells, inserting a row/column, auto-filling, copy-pasting values, find-and-replacing, setting hyperlinks, removing duplicates, creating sheets, clearing formats.
 
 (2) **Management**: Sorting, filtering, and freezing panes.
 
 (3) **Formatting**: Setting format and conditional format (font, bold, italic, underline, text color, and fill color), setting data type (date, text, number, currency, time, general, percentage), and merging.
 
-(4) **Charts**: Creating charts, creating charts from pivot tabls, setting chart title/axis title/legends/chart type/marker/trendline/data labels.
+(4) **Charts**: Creating charts, creating charts from pivot tables, setting chart title/axis title/legends/chart type/marker/trendline/data labels.
 
 (5) **Pivot table**: Creating pivot tables.
 
-(More operations will be added once the developers finish testing them. Besides, you can raise issues to ask for more supported operations or pull request to contribute your implementations.) 
+(More operations will be added once the developers finish testing them. Besides, you can raise issues to ask for more supported operations or pull requests to upload your implementations.) 
 
 ## Demo
 
