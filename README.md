@@ -25,11 +25,12 @@
 <br />
 </p>
 
-We release the SheetCopilot benchmark in this repository.
+We release the SheetCopilot  agent as well as the evaluation environment in this repository.
 
 SheetCopilot is an assistant agent that manipulate spreadsheets by following user commands. It breaks new ground in human-computer interaction, opening up possibilities for enabling non-expert users to complete their mandane work on complex software (e.g. Google sheets and Excel) via a language interface.
 
 ## What's New
+- **[2023/11/15]** 🛠 SheetCopilot equipped with Chain-of-Thoughts and external document retrieval was released.
 - **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets. Check out our google sheets plugin store [page](https://workspace.google.com/u/0/marketplace/app/sheetcopilot/393386705978) and watch this [tutorial](https://sheetcopilot.github.io/support.html) for install and usage guide.
 
 - **[2023/10/27]** 🛠 **More ground truths!** We added more reference solutions to our benchmark (```dataset/task_sheet_answers_v2```) to obtain more accurate evaluation results.
@@ -39,9 +40,6 @@ SheetCopilot is an assistant agent that manipulate spreadsheets by following use
 - **[2023/9/22]** 🎉 Our [**paper**](https://openreview.net/forum?id=tfyr2zRVoK) was accepted to NeurIPS 2023.
 
 - **[2023/5/19]** 👷🏻‍♂️ SheetCopilot was completed.
-
-## ToDo
-- Upload the simple code of SheetCopilot agent
 
 # Overview
 
@@ -129,10 +127,63 @@ To dive deeper into the dataset collection details, refer to this [tutorial](/da
 # SheetCopilot Usage
 
 ## For Excel
+This repo releases a simplified version of the SheetCopilot agent, whose state machine is able to do CoT reasoning and retrieve external documents.
 
-We implement each API with the ```pywin32``` library. Please refer to [API difinitions](/agent/Agent/xwAPI.py) to see the details. To compare with our SheetCopilot, your own agents should take these APIs as the action space.
+SheetCopilot calls customized atomic actions to execetue its generated solutions. We implement each atomic action using the ```pywin32``` library. Please refer to [API difinitions](/agent/Agent/xwAPI.py) to see the details. To compare with our SheetCopilot, your own agents should also adopt this action space.
+ 
+Before running an experiment, please set max tokens, temperature, model_name, and API keys in ```config/config.yaml```.
 
-The code of a simple SheetCopilot agent will be released soon...
+You can see two ChatGPT configs in this file - ChatGPT_1 is used to do planning while ChatGPT_2 is used to revise the format of the planning results. You can set ```use_same_LLM: true``` to use ChatGPT_1 to carry out both the two jobs.
+
+The underlying implementation of SheetCopilot is a state machine which implements planning by transitioning among 4 states (See the below figure). ```max_cycle_times``` is used to limit the number of times the agent visits the states.
+
+<p align="center">
+<img src="assets/StateMachine.jpg" width="85%">
+<br>
+<b>SheetCopilot State Machine</b>
+</p>
+
+<br/>
+
+
+## Interactive mode
+
+Open an Excel workbook before running this command:
+
+```
+python interaction.py -c config/config.yaml
+```
+
+Now you can enter any instrcutions and wait for SheetCoilot to finish them without any intervention.
+
+### Example
+To try SheetCopilot quickly, please open ```dataset/task_sheets/BoomerangSales.xlsx``` and then enter these instructions in order:
+
+1. Calculate the revenue for each transaction considering corresponding retail price and discount.
+
+2. Highlight the Revenue cells greater than 500 in blue text.
+
+3. Create a pivot table in a new sheet to show the counts of the websites on which boomerangs were sold.
+
+4. Plot a bar chart for the pivot table in the same sheet.
+
+5. Set the y-axis title as "Count" and turn off legends.
+
+6. Create another pivot table in a new sheet to show the revenue sums of each product.
+
+7. Plot a pie chart for the pivot table with chart title "Revenue by Product" in this sheet.
+
+You can also try more vague instructions like: ```Analyze the data and plot charts for the results.```
+
+Afterwards, you may see SheetCopilot create pivot tables and plot proper charts for you (see the figure below).
+
+<p align="center">
+<img src="assets/example_result.png" width="85%">
+<br>
+<b>Result of the example task</b>
+</p>
+
+[Caution] Any operation executed by SheetCopilot cannot be undone by clicking the "Undo" button! We **strongly** recommend that our users use SheetCopilot on GoogleSheets to automate their spreadsheet tasks.
 
 ## For Google Sheets
 
@@ -278,7 +329,7 @@ You can upload ```task_sheets/BoomerangSales.xlsx``` and type in these instructi
 # Citation
 SheetCopilot and the dataset can only be used for non-conmercial purposes.
 
-If you use the SheetCopilot benchmark, feel free to cite us.
+If you use the SheetCopilot agent and benchmark, feel free to cite us.
 
 ```bibtex
 @inproceedings{
