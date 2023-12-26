@@ -29,19 +29,8 @@ We release the SheetCopilot benchmark in this repository.
 
 SheetCopilot is an assistant agent that manipulate spreadsheets by following user commands. It breaks new ground in human-computer interaction, opening up possibilities for enabling non-expert users to complete their mandane work on complex software (e.g. Google sheets and Excel) via a language interface.
 
-# Overview
-
-SheetCopilot employs a novel way of directing Large Language Models (LLMs) to manipulate spreadsheets like a human expert. To achieve elegant closed-loop control, SheetCopilot observes the spreadsheet state and polishes generated solutions according to external action documents and error feedback, thereby improving its success rate and efficiency.
-
-<p align="center">
-<img src="assets/SheetCopilot-teaser.png" width="100%">
-</p>
-<br>
-
-**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/XawesbJV)!**
-
 ## What's New
-- **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets. See this [tutorial](https://sheetcopilot.github.io/support.html).
+- **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets. Check out our google sheets plugin store [page](https://workspace.google.com/u/0/marketplace/app/sheetcopilot/393386705978) and watch this [tutorial](https://sheetcopilot.github.io/support.html) for install and usage guide.
 
 - **[2023/10/27]** 🛠 **More ground truths!** We added more reference solutions to our benchmark (```dataset/task_sheet_answers_v2```) to obtain more accurate evaluation results.
 
@@ -53,6 +42,17 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 
 ## ToDo
 - Upload the simple code of SheetCopilot agent
+
+# Overview
+
+SheetCopilot employs a novel way of directing Large Language Models (LLMs) to manipulate spreadsheets like a human expert. To achieve elegant closed-loop control, SheetCopilot observes the spreadsheet state and polishes generated solutions according to external action documents and error feedback, thereby improving its success rate and efficiency.
+
+<p align="center">
+<img src="assets/SheetCopilot-teaser.png" width="100%">
+</p>
+<br>
+
+**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/XawesbJV)!**
 
 # Setup
 ### 1. Prepare the Conda environment
