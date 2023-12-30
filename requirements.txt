@@ -1,0 +1,11 @@
+colorama==0.4.6
+numpy==1.24.3
+openai==1.6.1
+openpyxl==3.0.10
+pandas==1.5.3
+pywin32==305.1
+PyYAML==6.0.1
+Requests==2.31.0
+tiktoken==0.5.1
+tqdm==4.65.0
+xlwings==0.29.1
