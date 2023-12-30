@@ -64,9 +64,9 @@ class ChatGPT:
                     raise Exception(f"Generated tokens exceed the limit: {self.max_total_tokens}!")
             except asyncio.TimeoutError:
                 print("API call timed out after {} seconds. Retring {}/{}...".format(self.timeout, i+1, self.max_retries))
-            except openai.error.RateLimitError as e:
+            except openai.RateLimitError  as e:
                 print("API call rate limited. Retring {}/{}...\n{}".format(i+1, self.max_retries, e))
-            except openai.error.APIError:
+            except openai.APIError:
                 print("API call failed. Retring {}/{}...".format(i+1, self.max_retries))
                 # time.sleep(20)
             except Exception as e:
@@ -92,11 +92,10 @@ class ChatGPT:
                 temperature = self.temperature,
             )
         else:
-            response = await openai.ChatCompletion.acreate(
+            response = await openai.AsyncOpenAI(api_key = next(self.api_keys)).chat.completions.create(
                 model = self.model_name,
                 messages = self.context,
                 temperature = self.temperature,
-                api_key = next(self.api_keys),
                 stream=True
             )
         if response.usage.total_tokens > self.max_total_tokens:

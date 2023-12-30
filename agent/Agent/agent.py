@@ -88,7 +88,7 @@ class Agent:
             
             # check if there is any api detected
             if not coarse_function_names:
-                return 'no_api_detected', (chatbot, context_index)
+                return 'no_api_detected', (chatbot, response)
             # check if the function name is in the api list
             invalid_api = []
             for i in range(len(coarse_function_names)):
