@@ -18,6 +18,8 @@ COLOR_DICT = {
     'white': [2]
 }
 
+TOLERANCE = 1e-8
+
 def compare_format_conditions(formatCondition1, formatCondition2, report):
     format_properties = deepcopy(report["format_conditions"])
 
@@ -57,13 +59,13 @@ def compare_format_conditions(formatCondition1, formatCondition2, report):
         format_properties['font'] = 0
 
     if 'bold'  in format_properties.keys() and formatCondition1.Font.Bold != formatCondition2.Font.Bold:
-        format_properties['bold'] = False
+        format_properties['bold'] = 0
 
     if 'italic' in format_properties.keys() and formatCondition1.Font.Italic != formatCondition2.Font.Italic:
-        format_properties['italic'] = False
+        format_properties['italic'] = 0
 
     if 'underline' in format_properties.keys() and formatCondition1.Font.Underline != formatCondition2.Font.Underline:
-        format_properties['underline'] = False
+        format_properties['underline'] = 0
 
     return format_properties
 
@@ -130,18 +132,18 @@ def compare_filters_by_visible_range(ws1, ws2, report):
 
 def compare_pivot_tables(pivot1, pivot2, report):
     # Initialize report
-    chart_properties = deepcopy(report['pivot_tables'])
+    pivot_properties = deepcopy(report['pivot_tables'])
 
     # Compare source
-    if 'source' in chart_properties.keys() and pivot1.SourceData != pivot2.SourceData:
-        chart_properties["source"] = 0
+    if 'source' in pivot_properties.keys() and pivot1.SourceData != pivot2.SourceData:
+        pivot_properties["source"] = 0
 
     # Compare filters
-    if 'filters' in chart_properties.keys() and pivot1.PivotFields().Count != pivot2.PivotFields().Count:
-        chart_properties["filters"] = False
+    if 'filters' in pivot_properties.keys() and pivot1.PivotFields().Count != pivot2.PivotFields().Count:
+        pivot_properties["filters"] = False
 
     # Compare rows
-    if "rows" in chart_properties.keys():
+    if "rows" in pivot_properties.keys():
         # Compare row fields
         pt1_row_fields = [field.SourceName for field in pivot1.RowFields]
         pt2_row_fields = [field.SourceName for field in pivot2.RowFields]
@@ -150,17 +152,24 @@ def compare_pivot_tables(pivot1, pivot2, report):
         
         if not (pivot1.RowFields.Count == pivot2.RowFields.Count and pt1_row_fields == pt2_row_fields and pt1_col_fields == pt2_col_fields) and\
             not (pivot1.RowFields.Count == pivot2.ColumnFields.Count and pt1_row_fields == pt2_col_fields and pt1_col_fields == pt2_row_fields):
-            chart_properties["rows"], chart_properties["columns"] = 0, 0
+            pivot_properties["rows"], pivot_properties["columns"] = 0, 0
 
     # Compare values
-    if 'values' in chart_properties.keys() and [field.SourceName for field in pivot1.DataFields] != [field.SourceName for field in pivot2.DataFields]:
-        chart_properties["values"] = 0
-        
-    # Compare summarization types
-    if pivot1.Summary != pivot2.Summary:
-        chart_properties["values"] = 0
+    if 'values' in pivot_properties.keys():
+        pt1_fields, pt2_fields = [x for x in pivot1.DataFields], [x for x in pivot2.DataFields]
 
-    return chart_properties
+        while len(pt1_fields) > 0:
+            pt1_field = pt1_fields.pop(0)
+
+            # loop through pt2
+            for pt2_field in pt2_fields:
+                if pt1_field.SourceName == pt2_field.SourceName and pt1_field.Function == pt2_field.Function:
+                    break
+            else:
+                pivot_properties["values"] = 0
+                break
+
+    return pivot_properties
     
 def compare_charts(chart1, chart2, report):
     # Initialize report
@@ -212,10 +221,10 @@ def compare_charts(chart1, chart2, report):
                         
                         if len(s1_xvalues) == len(s2_xvalues) and len(s1_values) == len(s2_values)\
                         and (s1_xvalues == s2_xvalues \
-                            or (all([isinstance(x, (int, float)) for x in s1_xvalues] + [isinstance(x, (int, float)) for x in s2_xvalues]) and np.allclose(s1_xvalues, s2_xvalues, atol=1e-5))) \
+                            or (all([isinstance(x, (int, float)) for x in s1_xvalues] + [isinstance(x, (int, float)) for x in s2_xvalues]) and np.allclose(s1_xvalues, s2_xvalues, atol=TOLERANCE))) \
                         and \
                             (s1_values == s2_values \
-                            or (all([isinstance(x, (int, float)) for x in s1_values] + [isinstance(x, (int, float)) for x in s2_values]) and np.allclose(s1_values, s2_values, atol=1e-5))):
+                            or (all([isinstance(x, (int, float)) for x in s1_values] + [isinstance(x, (int, float)) for x in s2_values]) and np.allclose(s1_values, s2_values, atol=TOLERANCE))):
                             break
                     except:
                         pass
@@ -335,10 +344,24 @@ def compare_cells_itercolumn(ws1, ws2, report):
                 cell2 = ws2_cells.Cells(row + 1, match_col_id + 1) # result
 
                 # Compare cell values
-                if 'values' in report['cells'].keys() and cell1.Value != cell2.Value:
-                    mismatch = True
-                    report['cells']['values'] = 0
-                    break
+                if 'values' in report['cells'].keys():
+                    cell1_value, cell2_value = cell1.Value, cell2.Value
+                    
+                    # Check types
+                    if type(cell1_value) != type(cell2_value):
+                        mismatch = True
+                    # Check strings
+                    elif type(cell1_value) is str and type(cell2_value) is str and cell1_value.strip() != cell2_value.strip():
+                        mismatch = True
+                    # Check numbers
+                    elif isinstance(cell1_value, (int, float)) and isinstance(cell2_value, (int, float)) and not np.allclose(cell1_value, cell2_value, atol=TOLERANCE):
+                        mismatch = True
+                    elif not isinstance(cell1_value, (int, float, str)) and not isinstance(cell2_value, (int, float, str)) and cell1_value != cell2_value:
+                        mismatch = True
+                    
+                    if mismatch:
+                        report['cells']['values'] = 0
+                        break
             
                 # Compare cell formatting
                 if 'formatting' in report['cells'].keys() and \
@@ -456,7 +479,7 @@ def compare_worksheets(ws1, ws2, config):
                         if k == "count": continue
                         report["format_conditions"][k] = match_results[k]
 
-    return report
+    return dict(report)
 
 def compare_frozen_panes(excel, wb1, wb2):
     # Iterate over all sheets
