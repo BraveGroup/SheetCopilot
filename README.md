@@ -41,6 +41,9 @@ SheetCopilot is an assistant agent that manipulates spreadsheets by following us
 
 - **[2023/5/19]** 👷🏻‍♂️ SheetCopilot was completed.
 
+## ToDo
+The error feedback functionality of SheetCopilot is not available now but will be released in near future.
+
 # Overview
 
 SheetCopilot employs a novel way of directing Large Language Models (LLMs) to manipulate spreadsheets like a human expert. To achieve elegant closed-loop control, SheetCopilot observes the spreadsheet state and polishes generated solutions according to external action documents and error feedback, thereby improving its success rate and efficiency.
