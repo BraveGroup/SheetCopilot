@@ -33,7 +33,6 @@ Agent:
     sleep_time: 20
     api_base: https://api.openai.com/v1
     api_keys: [
-      "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"
     ]
   ChatGPT_2:
     temperature: 0.4
