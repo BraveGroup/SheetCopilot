@@ -96,7 +96,6 @@ class ChatGPT:
                 model = self.model_name,
                 messages = self.context,
                 temperature = self.temperature,
-                stream=True
             )
         if response.usage.total_tokens > self.max_total_tokens:
             raise Exception(f"Generated tokens ({response.usage.total_tokens}) exceed the limit: {self.max_total_tokens}!")
@@ -106,7 +105,6 @@ class ChatGPT:
         processed = {
         'role': response.choices[0].message.role,
         'content': response.choices[0].message.content,
-        'token_info': f'{response.usage.prompt_tokens}+{response.usage.completion_tokens}={response.usage.total_tokens}'
         }
         
         return processed

@@ -6,6 +6,9 @@ import time, os, shutil, datetime
 import pandas as pd
 import argparse
 
+# If you use Clash as a proxy, you need to set the proxy environment variables.
+# os.environ["http_proxy"] = "http://127.0.0.1:7890"
+# os.environ["https_proxy"] = "http://127.0.0.1:7890"
 parser = argparse.ArgumentParser(description='Process config.')
 parser.add_argument('--config', '-c', type=str, help='path to config file')
 args = parser.parse_args()
@@ -49,18 +52,9 @@ async def producer():
 async def worker():
     agent = Agent(config)
     
-    # Save agent and server configs
-    while True:
-        try:
-            server_config = requests.request("GET", config['Agent']['ChatGPT_1']['api_base'].replace("generate", "get_config"), headers={'Content-Type': 'application/json'}, timeout=10).json()
-        except: print("Retry getting the server config...")
-        else: break
-    
+    # Save agent configs
     exp_cfgfile = os.path.join(config['path']['save_path'], 'exp_config.yaml')
     cfg = {
-            'log_file': server_config['log_file'],
-            'stopping_criteria': server_config['stopping_criteria'],
-            'gpu_config': server_config['max_memory'],
             'LLM_config': config,
             'start_time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }

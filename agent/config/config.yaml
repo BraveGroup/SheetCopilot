@@ -22,7 +22,7 @@ Agent:
   max_error_count: 999
 
   ChatGPT_1:
-    model_name: 'gpt-3.5-turbo'
+    model_name: 'gpt-3.5-turbo-16k'
     prompt_format: gpt-chat-prompt
     max_total_tokens: 16384
     max_new_tokens: 256
@@ -33,6 +33,7 @@ Agent:
     sleep_time: 20
     api_base: https://api.openai.com/v1
     api_keys: [
+      "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"
     ]
   ChatGPT_2:
     temperature: 0.4
