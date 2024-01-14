@@ -134,6 +134,11 @@ def compare_pivot_tables(pivot1, pivot2, report):
     # Initialize report
     pivot_properties = deepcopy(report['pivot_tables'])
 
+    # Compare name
+    # if config['name'] and pivot1.Name != pivot2.Name:
+    #     report["name"] = False
+    #     print(f"Pivot table name mismatch in sheet {pivot1.Parent.Name}")
+
     # Compare source
     if 'source' in pivot_properties.keys() and pivot1.SourceData != pivot2.SourceData:
         pivot_properties["source"] = 0
@@ -174,6 +179,11 @@ def compare_pivot_tables(pivot1, pivot2, report):
 def compare_charts(chart1, chart2, report):
     # Initialize report
     chart_properties = deepcopy(report['charts'])
+
+    # Compare name
+    # if config['name'] and chart1.Name != chart2.Name:
+    #     report["name"] = False
+    #     print(f"Chart name mismatch in sheet {chart1.Parent.Name}")
 
     # Compare chart type
     if 'chart_type' in chart_properties.keys() and chart1.Chart.ChartType != chart2.Chart.ChartType:
@@ -218,13 +228,14 @@ def compare_charts(chart1, chart2, report):
                         # If the X-axis values are string-type, just compare the strings; otherwise, compare the values with a difference tolerance. Same for the Y-axis values
                         s1_xvalues, s2_xvalues = series1.XValues, chart2_series[i].XValues
                         s1_values, s2_values = series1.Values, chart2_series[i].Values
-                        
                         if len(s1_xvalues) == len(s2_xvalues) and len(s1_values) == len(s2_values)\
                         and (s1_xvalues == s2_xvalues \
                             or (all([isinstance(x, (int, float)) for x in s1_xvalues] + [isinstance(x, (int, float)) for x in s2_xvalues]) and np.allclose(s1_xvalues, s2_xvalues, atol=TOLERANCE))) \
                         and \
                             (s1_values == s2_values \
-                            or (all([isinstance(x, (int, float)) for x in s1_values] + [isinstance(x, (int, float)) for x in s2_values]) and np.allclose(s1_values, s2_values, atol=TOLERANCE))):
+                            or (all([isinstance(x, (int, float)) for x in s1_values] + [isinstance(x, (int, float)) for x in s2_values]) and np.allclose(s1_values, s2_values, atol=TOLERANCE))) \
+                        and \
+                            series1.MarkerStyle == chart2_series[i].MarkerStyle:
                             break
                     except:
                         pass
@@ -289,6 +300,25 @@ def compare_cells_itercell(ws1, ws2, report):
 
         if mismatch: break
 
+def get_datatype(number_format):
+    lower_number_format = number_format.lower()
+    if lower_number_format in ['currency'] or "$" in lower_number_format or '¥' in lower_number_format:
+        return 'currency'
+    elif "%" in lower_number_format:
+        return 'percentage'
+    elif "yy" in lower_number_format or "dd" in lower_number_format:
+        return 'date'
+    elif any([x in lower_number_format for x in [':', 'mm', 'm', 'ss', 'hh', 'am', 'pm']]):
+        return 'time'
+    elif lower_number_format == '@':
+        return 'text'
+    elif 'general' in lower_number_format:
+        return 'general'
+    elif '$' not in lower_number_format and '¥' not in lower_number_format and ('#0' in lower_number_format or lower_number_format in ['0', '0.00']):
+        return 'number'
+    else:
+        return number_format
+
 def compare_cells_itercolumn(ws1, ws2, report):
     """
     Compare column-by-column
@@ -301,12 +331,14 @@ def compare_cells_itercolumn(ws1, ws2, report):
 
     NumberOfRows = min(ws1.Range('A1').End(-4121).Row,ws1.UsedRange.Rows.Count)
     NumberOfColumns = min(ws1.Range('A1').End(-4161).Column, ws1.UsedRange.Columns.Count)
-
+    # NumberOfRows = ws1.UsedRange.Rows.Count
+    # NumberOfColumns = ws1.UsedRange.Columns.Count
     mismatch = False
 
     if NumberOfRows != min(ws2.Range('A1').End(-4121).Row, ws2.UsedRange.Rows.Count) \
         or NumberOfColumns != min(ws2.Range('A1').End(-4161).Column, ws2.UsedRange.Columns.Count):
-
+    # if NumberOfRows != ws2.UsedRange.Rows.Count\
+    #     or NumberOfColumns != ws2.UsedRange.Columns.Count:
         mismatch = True
         report['cells']['values'] = 0
         
@@ -325,7 +357,7 @@ def compare_cells_itercolumn(ws1, ws2, report):
             # iterate through all headers to find the matched column in the result sheet
             match_col_id = 0
             while match_col_id < NumberOfColumns:
-                if header_ws1 == ws2_cells.Value[0][match_col_id] and match_col_id not in used_match_col_ids:
+                if header_ws1 == ws2_cells.Cells(1, match_col_id + 1).Value and match_col_id not in used_match_col_ids:
                     used_match_col_ids.append(match_col_id)
                     break
                 match_col_id += 1
@@ -338,50 +370,54 @@ def compare_cells_itercolumn(ws1, ws2, report):
             # If the row number is too large, we check the column every 100 rows
             step = 100 if NumberOfRows > 200 else 1
 
-            for row in range(0, NumberOfRows, step):
-                # NOTE：the index of elements in worksheet.Cells starts from 1, not 0
-                cell1 = ws1_cells.Cells(row + 1, col + 1) # gt.
-                cell2 = ws2_cells.Cells(row + 1, match_col_id + 1) # result
+            try:
+                for row in range(0, NumberOfRows, step):
+                    # NOTE：the index of elements in worksheet.Cells starts from 1, not 0
+                    cell1 = ws1_cells.Cells(row + 1, col + 1) # gt.
+                    cell2 = ws2_cells.Cells(row + 1, match_col_id + 1) # result
 
-                # Compare cell values
-                if 'values' in report['cells'].keys():
-                    cell1_value, cell2_value = cell1.Value, cell2.Value
-                    
-                    # Check types
-                    if type(cell1_value) != type(cell2_value):
+                    # Compare cell values
+                    if 'values' in report['cells'].keys():
+                        cell1_value, cell2_value = cell1.Value, cell2.Value
+                        
+                        # Check types
+                        if type(cell1_value) != type(cell2_value):
+                            mismatch = True
+                        # Check strings
+                        elif type(cell1_value) is str and type(cell2_value) is str and cell1_value.strip() != cell2_value.strip():
+                            mismatch = True
+                        # Check numbers
+                        elif isinstance(cell1_value, (int, float)) and isinstance(cell2_value, (int, float)) and not np.allclose(cell1_value, cell2_value, atol=TOLERANCE):
+                            mismatch = True
+                        elif not isinstance(cell1_value, (int, float, str)) and not isinstance(cell2_value, (int, float, str)) and cell1_value != cell2_value:
+                            mismatch = True
+                        
+                        if mismatch:
+                            report['cells']['values'] = 0
+                            break
+                        
+                    # Compare cell formatting
+                    if 'formatting' in report['cells'].keys() and \
+                        (cell1.Font.Name != cell2.Font.Name \
+                            or cell1.Font.Size != cell2.Font.Size \
+                            or cell1.Font.Color != cell2.Font.Color \
+                            or cell1.Font.Bold != cell2.Font.Bold \
+                            or cell1.Font.Italic != cell2.Font.Italic \
+                            or cell1.Font.Underline != cell2.Font.Underline \
+                            or cell1.Interior.Color != cell2.Interior.Color) \
+                            or get_datatype(cell1.NumberFormat) != get_datatype(cell2.NumberFormat):
                         mismatch = True
-                    # Check strings
-                    elif type(cell1_value) is str and type(cell2_value) is str and cell1_value.strip() != cell2_value.strip():
-                        mismatch = True
-                    # Check numbers
-                    elif isinstance(cell1_value, (int, float)) and isinstance(cell2_value, (int, float)) and not np.allclose(cell1_value, cell2_value, atol=TOLERANCE):
-                        mismatch = True
-                    elif not isinstance(cell1_value, (int, float, str)) and not isinstance(cell2_value, (int, float, str)) and cell1_value != cell2_value:
-                        mismatch = True
-                    
-                    if mismatch:
-                        report['cells']['values'] = 0
+                        report['cells']['formatting'] = 0
                         break
-            
-                # Compare cell formatting
-                if 'formatting' in report['cells'].keys() and \
-                    (cell1.Font.Name != cell2.Font.Name \
-                        or cell1.Font.Size != cell2.Font.Size \
-                        or cell1.Font.Color != cell2.Font.Color \
-                        or cell1.Font.Bold != cell2.Font.Bold \
-                        or cell1.Font.Italic != cell2.Font.Italic \
-                        or cell1.Font.Underline != cell2.Font.Underline \
-                        or cell1.Interior.Color != cell2.Interior.Color):
-                    mismatch = True
-                    report['cells']['formatting'] = 0
-                    break
 
-                if 'hyperlink' in report['cells'].keys():
-                    # If two cells both have no hyperlinks, they are considered matched
-                    if [cell1.Hyperlinks.Item(i+1).Address for i in range(cell1.Hyperlinks.Count)] != [cell2.Hyperlinks.Item(i+1).Address for i in range(cell2.Hyperlinks.Count)]:
-                        mismatch = True
-                        report['cells']['hyperlink'] = 0
-                        break
+                    if 'hyperlink' in report['cells'].keys():
+                        # If two cells both have no hyperlinks, they are considered matched
+                        if [cell1.Hyperlinks.Item(i+1).Address for i in range(cell1.Hyperlinks.Count)] != [cell2.Hyperlinks.Item(i+1).Address for i in range(cell2.Hyperlinks.Count)]:
+                            mismatch = True
+                            report['cells']['hyperlink'] = 0
+                            break
+            except:
+                mismatch = True
             
             if mismatch: break
 
@@ -418,33 +454,36 @@ def compare_worksheets(ws1, ws2, config):
             pairs_to_compare = get_matching_pairs(ws1.ChartObjects(), ws2.ChartObjects())
 
             # Exhaustive matching
-            for chart1, chart2 in pairs_to_compare:
-                match_results = compare_charts(chart1, chart2, report)
+            if len(pairs_to_compare) > 0:
+                results = []
+                for chart1, chart2 in pairs_to_compare:
+                    match_results = compare_charts(chart1, chart2, report)
 
-                if all(match_results.values()):
-                    break
-            else:
-                for k in report["charts"].keys():
-                    if k == "count": continue
-                    report["charts"][k] = 0
+                    results.append(all(match_results.values()))
+
+                if not results.count(True) == len(ws1.ChartObjects()):
+                    for k in report["charts"].keys():
+                        if k == "count": continue
+                        report["charts"][k] = 0
     
     # Compare pivot tables
     if any(config['pivot_tables'].values()):
         if ws1.PivotTables().Count != ws2.PivotTables().Count:
-            report["pivot_tables"]["count"] = False
+            report["pivot_tables"]["count"] = 0
         else:
             pairs_to_compare = get_matching_pairs(ws1.PivotTables(), ws2.PivotTables())
 
             # Exhaustive matching
-            for pivot1, pivot2 in pairs_to_compare:
-                match_results = compare_pivot_tables(pivot1, pivot2, report)
+            if len(pairs_to_compare) > 0:
+                for pivot1, pivot2 in pairs_to_compare:
+                    match_results = compare_pivot_tables(pivot1, pivot2, report)
 
-                if all(match_results.values()):
-                    break
-            else:
-                for k in report["pivot_tables"].keys():
-                    if k == "count": continue
-                    report["pivot_tables"][k] = 0
+                    if all(match_results.values()):
+                        break
+                else:
+                    for k in report["pivot_tables"].keys():
+                        if k == "count": continue
+                        report["pivot_tables"][k] = 0
 
     # Compare filters
     if any(config['filters'].values()):
@@ -512,9 +551,7 @@ def compare_frozen_panes(excel, wb1, wb2):
     # Compare
     match = [1] * len(wb1_frozen_ranges)
     for i, frozen_pane1, frozen_pane2 in zip(range(len(wb1_frozen_ranges)), wb1_frozen_ranges, wb2_frozen_ranges):
-        # The number of rows of the frozen panes must be equal
-        # The number of columns of the frozen panes must be equal or the that of the result sheet is 0 (0 means only the rows are frozen)
-        if not (wb1_sheet_frozen_panes is not None and frozen_pane1['row'] == frozen_pane2['row'] and (frozen_pane1['column'] == frozen_pane2['column'] or frozen_pane2['column'] == 0)) :
+        if not (wb1_sheet_frozen_panes is not None and frozen_pane1['row'] == frozen_pane2['row'] and (frozen_pane1['column'] == frozen_pane2['column'])) :
             match[i] = 0
     
     return match
@@ -573,7 +610,7 @@ def compare_workbooks(file1, file2, check_boards):
 
     # Frozen panes need to be checked using wb
     for i, sheet_report in enumerate(report.values()):
-        if 'view' in sheet_report.keys():
+        if 'view' not in sheet_report.keys():
             break
     else:
         match_lst = compare_frozen_panes(excel, wb1, wb2)
@@ -583,16 +620,23 @@ def compare_workbooks(file1, file2, check_boards):
 
     sussess = check_success(report)
 
+    if not sussess:
+        print(report)
+        pass
+    
     # Close workbooks and quit Excel
     wb1.Close(SaveChanges=False)
     wb2.Close(SaveChanges=False)
+    # excel.Application.Quit()
+
+    # pythoncom.CoUninitialize()
 
     return report, sussess
 
 if __name__ == "__main__":
     # Provide the paths to your workbooks
-    rpa_processed_file = r"208_WeeklySales\208_WeeklySales_1.xlsx"
-    ground_truth_file = r"task_sheet_answers\WeeklySales\10_WeeklySales\10_WeeklySales_gt1.xlsx"
+    rpa_processed_file = r"D:\SheetCopilot_data\deepseek-ai--deepseek-coder-6.7b-instruct_wExemplarRAG_0102\122_NetIncome\122_NetIncome_1.xlsx"
+    ground_truth_file = r"D:\Github\ActionTransformer\Excel_data\example_sheets_part1\task_sheet_answers_v2\NetIncome\1_NetIncome\1_NetIncome_gt1.xlsx"
     check_board_file = ground_truth_file.replace(".xlsx", "_check.yaml")
 
     with open(check_board_file, 'r') as f:
