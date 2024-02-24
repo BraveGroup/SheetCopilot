@@ -3,19 +3,20 @@ check_board:
     cells:
       formatting: false
       hyperlink: false
-      values: true
+      values: false
     charts:
       axes: false
       chart_type: false
+      count: false
       legend: false
       name: false
       series: false
       title: false
       trendlines: false
     filters:
-      filters: false
+      filters: true
       name: false
-      source: false
+      source: true
     format_conditions:
       bold: false
       color: false
@@ -37,6 +38,4 @@ check_board:
     view:
       freeze_pane: false
 required_APIs:
-- CreateSheet
-- Write
-- AutoFill
+- Filter

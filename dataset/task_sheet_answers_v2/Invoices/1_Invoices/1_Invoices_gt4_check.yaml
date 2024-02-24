@@ -1,12 +1,13 @@
 check_board:
   '1':
     cells:
-      formatting: false
+      formatting: true
       hyperlink: false
       values: true
     charts:
       axes: false
       chart_type: false
+      count: false
       legend: false
       name: false
       series: false
@@ -37,6 +38,6 @@ check_board:
     view:
       freeze_pane: false
 required_APIs:
-- CreateSheet
 - Write
-- AutoFill
+- Write
+- SetConditionalFormat

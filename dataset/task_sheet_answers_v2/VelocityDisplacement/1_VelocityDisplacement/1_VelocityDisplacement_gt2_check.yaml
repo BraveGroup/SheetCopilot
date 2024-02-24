@@ -3,16 +3,15 @@ check_board:
     cells:
       formatting: false
       hyperlink: false
-      values: true
+      values: false
     charts:
-      axes: false
-      chart_type: false
-      count: false
+      axes: true
+      chart_type: true
       legend: false
       name: false
-      series: false
+      series: true
       title: false
-      trendlines: false
+      trendlines: true
     filters:
       filters: false
       name: false
@@ -33,11 +32,10 @@ check_board:
       name: false
       rows: false
       source: false
-      summary_type: false
       values: false
     view:
       freeze_pane: false
 required_APIs:
-- Write
-- Write
-- AutoFill
+- CreateChart
+- SetChartAxis
+- SetChartTrendline

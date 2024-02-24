@@ -3,10 +3,11 @@ check_board:
     cells:
       formatting: false
       hyperlink: false
-      values: true
+      values: false
     charts:
       axes: false
       chart_type: false
+      count: false
       legend: false
       name: false
       series: false
@@ -17,15 +18,15 @@ check_board:
       name: false
       source: false
     format_conditions:
-      bold: false
-      color: false
-      fill_color: false
-      font: false
-      formula1: false
-      italic: false
-      operator: false
-      type: false
-      underline: false
+      bold: true
+      color: true
+      fill_color: true
+      font: true
+      formula1: true
+      italic: true
+      operator: true
+      type: true
+      underline: true
     pivot_tables:
       columns: false
       filters: false
@@ -37,6 +38,4 @@ check_board:
     view:
       freeze_pane: false
 required_APIs:
-- CreateSheet
-- Write
-- AutoFill
+- SetConditionalFormat

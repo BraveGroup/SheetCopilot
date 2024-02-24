@@ -7,7 +7,6 @@ check_board:
     charts:
       axes: false
       chart_type: false
-      count: false
       legend: false
       name: false
       series: false
@@ -33,7 +32,6 @@ check_board:
       name: false
       rows: false
       source: false
-      summary_type: false
       values: false
     view:
       freeze_pane: false
