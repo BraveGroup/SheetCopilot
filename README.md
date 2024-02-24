@@ -30,6 +30,7 @@ We release the SheetCopilot  agent as well as the evaluation environment in this
 SheetCopilot is an assistant agent that manipulates spreadsheets by following user commands. It breaks new ground in human-computer interaction, opening up possibilities for enabling non-expert users to complete their mundane work on complex software (e.g. Google Sheets and Excel) via a language interface.
 
 ## What's New
+- **[2024/02/24]** 🛠 Full SheetCopilot was released.
 - **[2023/12/26]** 🛠 SheetCopilot equipped with Chain-of-Thoughts and external document retrieval was released.
 - **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets. Check out our Google Sheets plugin store [page](https://workspace.google.com/u/0/marketplace/app/sheetcopilot/393386705978) and watch this [tutorial](https://sheetcopilot.github.io/support.html) for installation and usage guide.
 
@@ -40,9 +41,6 @@ SheetCopilot is an assistant agent that manipulates spreadsheets by following us
 - **[2023/9/22]** 🎉 Our [**paper**](https://openreview.net/forum?id=tfyr2zRVoK) was accepted to NeurIPS 2023.
 
 - **[2023/5/19]** 👷🏻‍♂️ SheetCopilot was completed.
-
-## ToDo
-The error feedback functionality of SheetCopilot is not available now but will be released in near future.
 
 # Overview
 
