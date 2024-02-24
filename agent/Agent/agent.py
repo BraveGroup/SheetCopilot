@@ -88,7 +88,7 @@ class Agent:
             
             # check if there is any api detected
             if not coarse_function_names:
-                return 'no_api_detected', (chatbot, response)
+                return 'no_api_detected', (chatbot, context_index, 'state1', False)
             # check if the function name is in the api list
             invalid_api = []
             for i in range(len(coarse_function_names)):
@@ -104,7 +104,7 @@ class Agent:
             print("Legal APIs: ", coarse_function_names)
             
             if invalid_api:
-                return 'invalid_api', (chatbot, invalid_api, response)
+                return 'invalid_api', (chatbot, invalid_api, context_index, 'state1', False)
             
             # clear the error count
             self.error_count = 0
@@ -166,7 +166,7 @@ class Agent:
             
             # check if there is any api detected
             if not fine_function_names:
-                return 'no_api_detected', (chatbot, response)
+                return 'no_api_detected', (chatbot, context_index, 'state3', base_prompt, coarse_function_names)
             
             # check if the function name is in the api list
             try:
@@ -185,7 +185,7 @@ class Agent:
             except:
                 print("Exception during checking APIs")
             if invalid_api:
-                return 'invalid_api', (chatbot, invalid_api, response)
+                return 'invalid_api', (chatbot, invalid_api, context_index, 'state3', base_prompt, coarse_function_names)
             # check if all the fine-grained apis are in the coarse-grained apis
             if not fine_function_names.issubset(coarse_function_names):
                 chatbot.context = chatbot.context[:context_index+1]
@@ -205,13 +205,13 @@ class Agent:
             except Exception as e:
                 print(f"[State 4] Invalid syntax in the reponse: {response}")
                 print(e)
-                return 'syntax_error', (chatbot, response)
+                return 'syntax_error', (chatbot, context_index, 'state4', base_prompt, coarse_function_names)
                 
             log['refined response'].append(functions)
             success, msg = self.Process(functions)
             if not success:
                 # go to failing process state
-                return 'execute_error', (chatbot, msg)
+                return 'execute_error', (chatbot, msg, prompt, base_prompt, coarse_function_names, context_index)
             
             # Clear the cycles times
             cycles_times = 0
@@ -232,21 +232,56 @@ class Agent:
             # prompt = 'If task is not finished, please provide the next step, otherwise, please type "Done!".'
             return 'state1', (chatbot, prompt, context_index, True)
         
-        async def execute_error(chatbot: ChatGPT, msg: str):
+        async def execute_error(chatbot: ChatGPT, msg, prompt, base_prompt, coarse_function_names, context_index):
+            nonlocal cycles_times
+            # Preventing dead loops
+            cycles_times += 1
+            if cycles_times > self.max_cycle_times:
+                return 'fail', (chatbot, 'Execution Error Handling', f'Too many cycles (>{self.max_cycle_times})')
             print("\nProcessing execute_error")
-            return 'fail', (chatbot, 'execute_error', f'Execution error: {msg}')
+            prompt = f'Execution error: {msg}\nPlease regenerate this step.'
+            return 'state3', (chatbot, prompt, base_prompt, coarse_function_names, context_index)
 
-        async def syntax_error(chatbot: ChatGPT, response: str):
+        async def syntax_error(chatbot: ChatGPT, context_index, prev_state, base_prompt = None, coarse_function_names = None):
             print("\nProcessing output syntax_error")
-            return 'fail', (chatbot, 'syntax_error', f'Syntax errors found in the response: {response}')
+            # prompt = 'Please return the API in one line. Please add @ both before and after the function call to indicate that the content between the two @ characters is a function call, like @Function1()@, Function2()@.'
             
-        async def no_api_detected(chatbot: ChatGPT, response: str):
+            prompt = self.prompt.get('syntax error', None)
+            if prompt is None:
+                prompt = """Your answer does not conform with the output format specified in the requirements. Please generate this step again."""
+            
+            if prev_state == 'state1':
+                return 'state1', (chatbot, prompt, context_index)
+            elif prev_state in ['state3', 'state4']:
+                return 'state3', (chatbot, prompt, base_prompt, coarse_function_names, context_index)
+            
+        async def no_api_detected(chatbot: ChatGPT, context_index, prev_state, base_prompt = None, coarse_function_names = None):
             print("\nProcessing no_api_detected")
-            return 'fail', (chatbot, 'no_api_detected', f'No API detected in the response: {response}')
+            self.error_count += 1
+            if self.error_count >= self.max_error_count:
+                return 'fail', (chatbot, 'No API detected', f'Too many error counts (>= {self.max_error_count})')
+            # prompt = 'Please return the API in one line. Please add @ both before and after the function call to indicate that the content between the two @ characters is a function call, like @Function1()@, Function2()@.'
+            
+            prompt = self.prompt.get('no api correction', None)
+            if prompt is None:
+                prompt = """Your response contains no APIs! Please regenerate this step in one line. Please add @ both before and after the atomic action to indicate that the content between the two @ characters is an API call, e.g. Action API: @CopyPaste(range=..., value=...)@."""
+            
+            if prev_state == 'state1':
+                return 'state1', (chatbot, prompt, context_index)
+            elif prev_state == 'state3':
+                return 'state3', (chatbot, prompt, base_prompt, coarse_function_names, context_index)
         
-        async def invalid_api(chatbot: ChatGPT, invalid_api, response: str):
+        async def invalid_api(chatbot: ChatGPT, invalid_api, context_index, prev_state, base_prompt = None, coarse_function_names = None):
             print("\nProcessing invalid_api")
-            return 'fail', (chatbot, 'Invalid API handling', f'Invalid APIs: {invalid_api} were found in the response: {response}')
+            self.error_count += 1
+            if self.error_count >= self.max_error_count:
+                return 'fail', (chatbot, 'Invalid API handling', f'Too many error counts (>= {self.max_error_count})')
+            
+            prompt = f'There is no API: {" ".join(invalid_api)}\n. You can only choose from the following APIs:\n{" ".join(self.api_list)}\nPlease regenerate this step.'
+            if prev_state == 'state1':
+                return 'state1', (chatbot, prompt, context_index, False)
+            elif prev_state == 'state3':
+                return 'state3', (chatbot, prompt, base_prompt, coarse_function_names, context_index)
 
         async def fail(chatbot: ChatGPT, prev_state, msg):
             self.step = 1
