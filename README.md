@@ -156,7 +156,7 @@ Open an Excel workbook before running this command:
 python interaction.py -c config/config.yaml
 ```
 
-Now you can enter any institution and wait for SheetCoilot to finish them without any intervention.
+Now you can enter instructions and wait for SheetCoilot to finish them without human intervention.
 
 ### Example
 To try SheetCopilot quickly, please open ```dataset/task_sheets/BoomerangSales.xlsx``` and then enter these instructions in order:
