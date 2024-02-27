@@ -1,6 +1,10 @@
 **SheetCopilot**: Bringing Software Productivity to the Next Level through Large Language Models
 ========
 
+[![arXiv](https://img.shields.io/badge/arXiv-2305.19308-b31b1b.svg)](http://arxiv.org/abs/2305.19308) 
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity) 
+[![Awesome](https://awesome.re/badge.svg)]()
+
 <p align="center">
 <img src="assets/icon.png" width="50%">
 <br>
@@ -43,9 +47,9 @@ SheetCopilot is an assistant agent that manipulates spreadsheets by following us
 - **[2023/5/19]** 👷🏻‍♂️ SheetCopilot was completed.
 
 ## TODO
-- Updated the function call parsing code to fix the quote parsing errors
-- Updated API implementations
-- Updated evaluation script to improve the checking accuracy
+- Update the function call parsing code to fix the quote parsing errors
+- Update API implementations
+- Update the evaluation script to improve the checking accuracy
 
 # Overview
 
