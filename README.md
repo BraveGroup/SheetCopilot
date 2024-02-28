@@ -124,7 +124,7 @@ The fields are explained one by one as follows:
 - ```Atomic actions```: The atomic actions used to solve the task
 - ```Seed task```: The number of the seed task (stored in ```dataset/seed_tasks.xlsx```) this task originates from. Our 221 tasks were produced by adapting the 67 seed tasks to apply them to the task sheets (the ```task_sheets``` folder).
 
-The ```task_sheets``` folder contains the 28 evaluation workbooks these tasks applied to.
+The ```task_sheets``` folder contains the 28 evaluation workbooks these tasks are applied to.
 
 The ```task_sheet_answers``` folder contains the reference solutions of the tasks. Each solution consists of a reference workbook showing the expected outcome of the corresponding task and a *.yaml file listing the necessary sheet states to compare. If the necessary states of the result match those of one of the references, the result is seen as correct. (The v1 version is used in our paper while the v2 version contains more reference solutions collected after our paper was submitted)
 
@@ -154,8 +154,6 @@ The underlying implementation of SheetCopilot is a state machine that implements
 </p>
 
 <br/>
-
-*(Note that the error feedback is not open-sourced now. Nevertheless, our users are encouraged to implement this module, which is pretty straightforward.)*
 
 ## Interactive mode
 
@@ -237,7 +235,7 @@ results
   └── 221_XYScatterPlot
 ```
 
-[Order] is the row index of the task minus 1 and [Sheet Name] is the items of column A in ```dataset.xlsx```. [Repeat_NO.] is used to differentiate multiple repeats of the same task. If you run each task only once (controlled by ```repeat```), [Repeat_NO.] is 1.
+[Order] is the row index of the task minus 1 and [Sheet Name] is the items of column A in ```dataset.xlsx```. [Repeat_NO.] is used to differentiate multiple repeats of the same task. If you run each task only once (controlled by ```repeat``` in the config file), [Repeat_NO.] is 1.
 
 ```1_BoomerangSales_log.yaml``` is the running log of the task saving the content of the planning process. Likewise, your method should also record a log for each task.
 
