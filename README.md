@@ -341,11 +341,14 @@ SheetCopilot and the dataset can only be used for non-commercial purposes.
 If you use the SheetCopilot agent and benchmark, feel free to cite us.
 
 ```bibtex
-@inproceedings{
-li2023sheetcopilot,
-title={SheetCopilot: Bringing Software Productivity to the Next Level through Large Language Models},
-author={Hongxin Li and Jingran Su and Yuntao Chen and Qing Li and Zhaoxiang Zhang},
-booktitle={Thirty-seventh Conference on Neural Information Processing Systems},
-year={2023},
-url={https://openreview.net/forum?id=tfyr2zRVoK}
+@inproceedings{li_sheetcopilot_2023,
+	title = {{SheetCopilot}: {Bringing} {Software} {Productivity} to the {Next} {Level} through {Large} {Language} {Models}},
+	volume = {36},
+	url = {https://proceedings.neurips.cc/paper_files/paper/2023/file/0ff30c4bf31db0119a6219e0d250e037-Paper-Conference.pdf},
+	booktitle = {Advances in {Neural} {Information} {Processing} {Systems}},
+	publisher = {Curran Associates, Inc.},
+	author = {Li, Hongxin and Su, Jingran and Chen, Yuntao and Li, Qing and ZHANG, ZHAO-XIANG},
+	editor = {Oh, A. and Neumann, T. and Globerson, A. and Saenko, K. and Hardt, M. and Levine, S.},
+	year = {2023},
+	pages = {4952--4984},
 }
