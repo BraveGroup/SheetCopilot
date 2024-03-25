@@ -60,7 +60,7 @@ SheetCopilot employs a novel way of directing Large Language Models (LLMs) to ma
 </p>
 <br>
 
-**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/XawesbJV)!**
+**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/6wbjHypH)!**
 
 # Setup
 ### 1. Prepare the Conda environment
