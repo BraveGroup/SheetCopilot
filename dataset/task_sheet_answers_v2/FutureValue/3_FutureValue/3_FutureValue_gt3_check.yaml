@@ -14,9 +14,9 @@ check_board:
       title: false
       trendlines: false
     filters:
-      filters: true
+      filters: false
       name: false
-      source: true
+      source: false
     format_conditions:
       bold: false
       color: false
@@ -40,3 +40,4 @@ check_board:
 required_APIs:
 - Filter
 - SetFormat
+- DeleteFilter
