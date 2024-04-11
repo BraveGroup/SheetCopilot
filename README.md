@@ -141,7 +141,7 @@ This repo releases a simplified version of the SheetCopilot agent, whose state m
 
 SheetCopilot calls customized atomic actions to execute its generated solutions. We implement each atomic action using the ```pywin32``` library. Please refer to [API definitions](/agent/Agent/xwAPI.py) to see the details. To compare with our SheetCopilot, your own agents should also adopt this action space.
  
-Before running an experiment, please set max tokens, temperature, model_name, and API keys in ```config/config.yaml```.
+Before running an experiment, please set max tokens, temperature, model_name, and API keys in ```config/config.yaml```. (As launching multiple Excels still encounters certain unknown issues, we recommend ```worker=1```. This can finish the evaluation in 1-2 hours.)
 
 You can see two ChatGPT configs in this file - ChatGPT_1 is used to do planning while ChatGPT_2 is used to revise the format of the planning results. You can set ```use_same_LLM: true``` to use ChatGPT_1 to carry out both two jobs.
 
