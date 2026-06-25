@@ -34,6 +34,13 @@ We release the SheetCopilot  agent as well as the evaluation environment in this
 SheetCopilot is an assistant agent that manipulates spreadsheets by following user commands. It breaks new ground in human-computer interaction, opening up possibilities for enabling non-expert users to complete their mundane work on complex software (e.g. Google Sheets and Excel) via a language interface.
 
 ## What's New
+- **[2026/06/25]** 🐧 **Linux/Ubuntu support + new tooling — no Windows/Excel required.** See [`agent/README_ubuntu_eval.md`](agent/README_ubuntu_eval.md) for details. The original Windows scripts are untouched.
+  - **Excel-free evaluation**: `agent/evaluation_ubuntu.py` reproduces the exact outcome metrics (Exec@1/Pass@1/A50/A90) with a hybrid **openpyxl + headless-LibreOffice (UNO)** backend — verified to match the original Windows/Excel evaluator and validated by op/non-op reliability tests.
+  - **Modern OpenAI SDK + bring-your-own-model**: `agent/utils/ChatGPT.py` upgraded to `openai>=1.40` (tested on 2.x); works with any OpenAI-compatible endpoint (vLLM/Ollama/gateways) and reasoning models via streaming.
+  - **Detailed trajectory logging**: each task attempt is saved as one structured JSON (full query, response, reasoning, token usage, latency, parsed/executed actions).
+  - **Planning probe**: `agent/run_planning_probe.py` tests any model's SheetCopilot planning on N tasks without Excel.
+  - **Claude Code as an alternative agent**: `agent/claude_code_agent.py` solves the tasks with the Claude Code CLI (edits workbooks via Python/LibreOffice); scored by the same evaluator.
+  - **Trajectory visualizer**: `agent/visualize_trajectories.py` renders all trajectories into one self-contained HTML page (state-machine path, per-call query/response/reasoning/usage/actions, eval-overlaid pass/fail) to inspect *why* tasks fail.
 - **[2024/02/24]** 🛠 Full SheetCopilot was released.
 - **[2023/12/26]** 🛠 SheetCopilot equipped with Chain-of-Thoughts and external document retrieval was released.
 - **[2023/11/15]** ✨ **SheetCopilot for Google Sheets was released!** You can now use SheetCopilot directly on Google Sheets. Check out our Google Sheets plugin store [page](https://workspace.google.com/u/0/marketplace/app/sheetcopilot/393386705978) and watch this [tutorial](https://sheetcopilot.github.io/support.html) for installation and usage guide.
@@ -142,6 +149,57 @@ SheetCopilot calls customized atomic actions to execute its generated solutions.
 Before running an experiment, please set max tokens, temperature, model_name, and API keys in ```config/config.yaml```. (As launching multiple Excels still encounters certain unknown issues, we recommend ```worker=1```. This can finish the evaluation in 1-2 hours.)
 
 You can see two ChatGPT configs in this file - ChatGPT_1 is used to do planning while ChatGPT_2 is used to revise the format of the planning results. You can set ```use_same_LLM: true``` to use ChatGPT_1 to carry out both two jobs.
+
+### Using the latest OpenAI API / your own model
+
+The agent now talks to LLMs through the **modern OpenAI Python SDK** (`openai>=1.40`, tested on 2.x) via `agent/utils/ChatGPT.py`. The same client works with the official OpenAI API **and any OpenAI-compatible server** (vLLM, TGI, Ollama, LM Studio, Azure-style gateways, …), so you can plug in your own model by editing `config/config.yaml`:
+
+```yaml
+ChatGPT_1:
+  model_name: 'gpt-4o-mini'                 # or your model, e.g. 'Qwen2.5-7B-Instruct'
+  base_url: https://api.openai.com/v1       # or http://localhost:8000/v1 for a local server
+  api_keys: ['sk-...']                       # one or more keys (rotated); use ['EMPTY'] for auth-less local servers
+  max_tokens: 1024                           # max completion tokens (replaces the old max_new_tokens)
+  max_total_tokens: 16384
+  temperature: 0.4
+  timeout: 60
+  max_retries: 10
+```
+
+Legacy keys (`api_base`, `max_new_tokens`) are still accepted for backward compatibility. Install/upgrade the dependency with `pip install -U openai` (or `pip install -r requirements.txt`).
+
+> The dataset-collection scripts in `dataset/collecting_scripts/` were likewise updated off the deprecated *ChatGPT-Wrapper* onto the modern SDK; configure them with the `OPENAI_API_KEY`, `OPENAI_BASE_URL` and `OPENAI_MODEL` environment variables.
+
+### Trajectory logging
+
+Every task attempt is saved as one structured, human-readable **trajectory** JSON file, recording — for each LLM call — the **full query** (the messages sent), the **model response**, **token usage**, **latency**, the **planning stage** that issued it, and the **parsed/executed actions**. Files are written next to the result workbook as `<save_path>/<order>_<SheetName>/<order>_<SheetName>_<repeat>/<order>_<SheetName>_<repeat>_trajectory.json` (this replaces the old, redundant `context_log_*.yaml` dumps; the `*_log.yaml` summary used by the evaluator is unchanged).
+
+Schema (abridged):
+
+```json
+{
+  "meta": {
+    "model": "gpt-4o-mini", "instruction": "...", "success": true,
+    "source_file": "...", "result_file": "...",
+    "usage_summary": {"total_calls": 7, "prompt_tokens": 8421,
+                       "completion_tokens": 512, "total_tokens": 8933, "wall_time_s": 31.2}
+  },
+  "calls": [
+    {
+      "id": 1, "stage": "coarse_planning", "timestamp": "2026-06-24 15:17:32",
+      "latency_s": 1.83, "model": "gpt-4o-mini",
+      "request_messages": [ {"role": "system", "content": "..."},
+                            {"role": "user", "content": "..."} ],
+      "response": {"role": "assistant", "content": "Step 1. ...", "finish_reason": "stop"},
+      "usage": {"prompt_tokens": 120, "completion_tokens": 18, "total_tokens": 138},
+      "parsed_actions": ["Write", "AutoFill"],
+      "executed_actions": ["Write(range=\"Sheet1!G1\", value=\"Revenue\")"],
+      "execution_success": true,
+      "error": null
+    }
+  ]
+}
+```
 
 The underlying implementation of SheetCopilot is a state machine that implements planning by transitioning among 4 states (See the below figure). ```max_cycle_times``` is used to limit the number of times the agent visits the states.
 
@@ -280,6 +338,103 @@ The evaluation can restart from a checkpoint if it has been aborted. If you want
 **Important:** NOTE that
 - Every new sheet must be created to the left of the very first sheet for correct matching with the references since sheet names are not to be checked.
 - The sheet content must start from cell A1 and each sheet is required to contain contiguous tables.
+
+## Headless Evaluation on Ubuntu (Excel-free)
+
+The evaluator above needs **Windows + Excel** (it drives Excel through `pywin32`). For **Ubuntu/Linux**, we additionally provide a parallel, **Excel-free** evaluator that runs fully headless and reproduces the *same* outcome-based metrics (Exec@1, Pass@1, A_mean/A50/A90) against the *same* result folders and `*_check.yaml` ground-truth check-boards. The original Windows scripts are left untouched.
+
+It uses a **hybrid backend**:
+- **openpyxl** reads Excel's cached values + style XML for cells, conditional formatting, filters and frozen panes;
+- **headless LibreOffice (via the `python3-uno` bridge)** recomputes charts and pivot tables.
+
+All code lives in `agent/evaluation_ubuntu.py` and the `agent/ubuntu_eval/` package. See [`agent/README_ubuntu_eval.md`](agent/README_ubuntu_eval.md) for the full design.
+
+### 1. Setup
+
+Run once from the `agent` folder (use `sudo` if you are not root). This installs LibreOffice Calc + `python3-uno` (apt) and the Python dependencies (pip), then runs a smoke test:
+
+```
+cd agent
+bash setup_ubuntu_eval.sh
+```
+
+### 2. Run the evaluation
+
+It reads the **same** `config/config.yaml` as the Windows evaluator (only the `path.*`, `repeat` and `worker` fields are used):
+
+```
+# default: workers from config, [Order]_[Sheet Name] folder naming
+python evaluation_ubuntu.py -c config/config.yaml
+
+# run in parallel with N worker processes
+python evaluation_ubuntu.py -c config/config.yaml --workers 8
+
+# use the [No.]_[Sheet Name] naming convention (= USE_NO_AND_SHEETNAME=True)
+python evaluation_ubuntu.py -c config/config.yaml --use-no-and-sheetname
+
+# openpyxl only -- skip charts/pivot tables, no LibreOffice (fast debugging)
+python evaluation_ubuntu.py -c config/config.yaml --no-uno
+```
+
+Each worker process that needs charts/pivot tables lazily spins up and reuses its own private headless LibreOffice instance, so pure-cell tasks never pay for LibreOffice.
+
+### 3. Where results are saved
+
+Everything is written under the `save_path` from your config:
+
+| File | Content |
+|------|---------|
+| `<save_path>/eval_result_ubuntu.yaml` | Metrics + per-task verdicts (kept separate from the Windows `eval_result.yaml`). |
+| `<save_path>/eval_ubuntu.log` | Interleaved, per-process run log (also streamed to stderr). |
+
+The run is **checkpointed after every task**, so re-running resumes and skips already-evaluated tasks. To re-evaluate from scratch, delete `eval_result_ubuntu.yaml`.
+
+### Example results
+
+Running on the bundled example logs (`agent/SheetCopilot_example_logs`, 12 tasks spanning cells, formulas, formatting, pivot tables and charts) prints:
+
+```
+Repeat 1: 12 task(s) to evaluate (0 cached)
+Repeat 1: 100%|██████████| 12/12 [00:09<00:00,  1.31it/s]
+Repeat 1 finished in 9.2s
+  Total: 12
+  Exec@1: 0.8333333333333334
+  Pass@1: 0.5
+  Pivot Table Exec & Pass: 3/4 & 2/4
+  Charts Exec & Pass: 3/5 & 2/5
+  Formatting Exec & Pass: 2/2 & 1/2
+  A_mean: 5.0
+  A50_norm: 1.79
+  A90_norm: 2.75
+```
+
+These are **identical** to the verdicts produced by the original Windows/Excel evaluator on the same logs (whose results ship in `agent/SheetCopilot_example_logs/eval_result.yaml`).
+
+### What is evaluated (outcome aspects)
+
+For each task, the result workbook is compared with each reference solution using the reference's `*_check.yaml`, which flags — per **sheet index** — only the properties that matter for that task:
+
+| Aspect | Backend | Examples of what is checked |
+|--------|---------|-----------------------------|
+| `cells` | openpyxl | Cell **values** (formula results, header-matched columns, `1e-8` tolerance), **formatting** (font/fill/data type), **hyperlinks** |
+| `format_conditions` | openpyxl | Conditional-formatting rules: formula, font/fill colour, bold/italic/underline |
+| `filters` | openpyxl | Post-AutoFilter **visible** range |
+| `view` | openpyxl | Frozen panes |
+| `charts` | LibreOffice (UNO) | Chart type, title, legend, axes, series data, markers |
+| `pivot_tables` | LibreOffice (UNO) | Source range, row/column/data fields and summary functions |
+
+A task counts toward **Exec@1** if it ran without error and produced a result file, and toward **Pass@1** if its result matches **any** reference solution.
+
+### Verifying the port
+
+Two checks back the port's reliability (both runnable from `agent`):
+
+```
+python -m ubuntu_eval.selftest          # reproduce the Windows verdicts on the example logs
+python -m ubuntu_eval.reliability_test  # op (GT vs GT) + non-op (GT vs raw source) tests
+```
+
+On the full benchmark the reliability test reports **OP 390/390 (100%) pass** and **NON-OP 4/390 (1.0%) pass** — i.e. correct workbooks are always accepted and unmodified source workbooks are almost always rejected (the ~1% are weak check-boards in the dataset that the Windows evaluator also passes). See [`agent/README_ubuntu_eval.md`](agent/README_ubuntu_eval.md) for details.
 
 ## Evaluation results
 

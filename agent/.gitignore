@@ -2,3 +2,8 @@ __pycache__/
 .ipynb_checkpoints/
 context_log*
 context/
+# Ubuntu eval / agent run outputs (artifacts, not source)
+planning_probe_*/
+claude_code_results*/
+DIR_to_Save/
+*.pyc

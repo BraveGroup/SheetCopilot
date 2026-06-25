@@ -21,26 +21,38 @@ Agent:
   max_cycle_times: 20
   max_error_count: 999
 
+  # ChatGPT_1 plans the steps; ChatGPT_2 (re)formats them. Both use the modern
+  # OpenAI SDK (>=1.40) and work with ANY OpenAI-compatible endpoint.
+  #
+  # To use your own / a local model, just change `base_url` and `model_name`:
+  #   base_url: http://localhost:8000/v1     # e.g. vLLM / TGI / Ollama / LM Studio
+  #   model_name: 'Qwen2.5-7B-Instruct'
+  #   api_keys: ['EMPTY']                      # dummy key for auth-less local servers
+  # For the official OpenAI API, set `base_url: https://api.openai.com/v1` and put
+  # your real key(s) in `api_keys` (multiple keys are rotated across requests).
   ChatGPT_1:
-    model_name: 'gpt-3.5-turbo-16k'
+    model_name: 'gpt-4o-mini'
     prompt_format: gpt-chat-prompt
-    max_total_tokens: 16384
-    max_new_tokens: 256
-    topk: 0
-    temperature: 0.4
-    timeout: 50
-    max_retries: 20
-    sleep_time: 20
-    api_base: https://api.openai.com/v1
+    base_url: https://api.openai.com/v1
     api_keys: [
     ]
+    max_total_tokens: 16384   # request fails if prompt+completion exceeds this
+    max_tokens: 1024          # max completion tokens per call (was max_new_tokens)
+    temperature: 0.4
+    top_p: 1.0
+    timeout: 60               # per-request timeout (seconds)
+    max_retries: 10           # retries on rate-limit / transient API errors
+    sleep_time: 10            # seconds to wait between retries
   ChatGPT_2:
-    temperature: 0.4
-    max_new_tokens: 256
-    topk: 0
-    timeout: 50
-    max_retries: 20
-    sleep_time: 20
-    api_base: https://api.openai.com/v1
+    model_name: 'gpt-4o-mini'
+    prompt_format: gpt-chat-prompt
+    base_url: https://api.openai.com/v1
     api_keys: [
     ]
+    max_total_tokens: 16384
+    max_tokens: 1024
+    temperature: 0.4
+    top_p: 1.0
+    timeout: 60
+    max_retries: 10
+    sleep_time: 10

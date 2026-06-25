@@ -1,0 +1,8 @@
+# Python dependencies for the Ubuntu (Excel-free) SheetCopilot evaluator.
+# The UNO bridge itself (the `uno` module) is provided by the system package
+# `python3-uno`, installed via apt in setup_ubuntu_eval.sh -- it is NOT on PyPI.
+openpyxl>=3.1.0
+pandas>=1.5.0
+numpy>=1.23.0
+PyYAML>=6.0
+tqdm>=4.65.0

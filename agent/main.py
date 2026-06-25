@@ -82,12 +82,21 @@ async def worker():
         for i in range(config['repeat']):
             save_path = path + str(i+1)
             success, res = await agent.Instruction(context, instructions, source_path, save_path)
-            context_log_list = res.pop('context_log')
+            res.pop('context_log', None)  # superseded by the structured trajectory file
             if not os.path.exists(save_path):
                 os.makedirs(save_path)
-            for i, context_log in enumerate(context_log_list):
-                with open(os.path.join(save_path, f'context_log_{i+1}.yaml'), 'w') as f:
-                    f.write(yaml.dump(context_log))
+            # Save the detailed trajectory (every query + response, token usage,
+            # latency, parsed/executed actions) as one elegant JSON artifact.
+            if agent.last_trajectory is not None:
+                traj_path = os.path.join(save_path, f"{os.path.basename(path)}{i+1}_trajectory.json")
+                agent.last_trajectory.save(
+                    traj_path,
+                    task_index=index,
+                    repeat=i + 1,
+                    success=success,
+                    result_file=os.path.abspath(save_path + '.xlsx'),
+                )
+                print(f"Saved trajectory to {traj_path}")
             if success:
                 success_count += 1
                 log['Success Response'].append(res)

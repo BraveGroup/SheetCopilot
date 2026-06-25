@@ -1,19 +1,17 @@
 # This script is used to paraphrase SU adapted instructions so that the paraphrases are more like what human users would say when useing Excel
 # The original instructions are too unnatural and lenghty.
-import openpyxl, openai, os, re, tiktoken, tqdm, time, json
+import openpyxl, os, re, tiktoken, tqdm, time, json
 from collections import defaultdict
 import requests
-os.environ["http_proxy"] = "http://127.0.0.1:7890"
-os.environ["https_proxy"] = "http://127.0.0.1:7890"
+# If you route requests through a local proxy (e.g. Clash), set these:
+# os.environ["http_proxy"] = "http://127.0.0.1:7890"
+# os.environ["https_proxy"] = "http://127.0.0.1:7890"
 
-from chatgpt_wrapper import ChatGPT
-from utils import num_tokens_from_string, generate_state
-
-encoding = tiktoken.encoding_for_model('gpt-3.5-turbo')
-
+# The model is queried through utils.ask(), which uses the modern OpenAI SDK,
+# configured via the OPENAI_API_KEY / OPENAI_BASE_URL / OPENAI_MODEL env vars.
 from utils import num_tokens_from_string, generate_state, ask
 
-openai.api_key = ""
+encoding = tiktoken.encoding_for_model('gpt-3.5-turbo')
 
 
 PROMPT = """You have been tasked with paraphrasing a set of instructions for Excel tasks.
@@ -79,7 +77,7 @@ def main():
 
     batch_size = 6
     
-    gpt_mode = ['wrapper', 'api', 'proxy'][2]
+    gpt_mode = 'api'
     debug = False
     bot = None
     if gpt_mode == 'wrapper':

@@ -1,5 +1,9 @@
-openai
+# SheetCopilot agent runtime (Windows: drives Excel via pywin32/xlwings).
+openai>=1.40        # modern OpenAI SDK (tested on 2.x); works with any OpenAI-compatible endpoint
 pywin32
-xlwings=0.30.4
+xlwings>=0.30.4
 requests
 colorama
+PyYAML
+pandas
+tiktoken

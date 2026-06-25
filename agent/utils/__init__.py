@@ -1,6 +1,7 @@
 from .ChatGPT import ChatGPT
 from .StateMachine import StateMachine
 from .compare_sheets import compare_workbooks
+from .trajectory import TrajectoryLogger
 
 action2API = {
     "Update cell value": "Write",

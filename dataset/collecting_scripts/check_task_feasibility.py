@@ -1,14 +1,12 @@
-import openpyxl, openai, os, re, tqdm, time, json, requests
+import openpyxl, os, re, tqdm, time, json, requests
 from collections import defaultdict
-os.environ["http_proxy"] = "http://127.0.0.1:7890"
-os.environ["https_proxy"] = "http://127.0.0.1:7890"
+# If you route requests through a local proxy (e.g. Clash), set these:
+# os.environ["http_proxy"] = "http://127.0.0.1:7890"
+# os.environ["https_proxy"] = "http://127.0.0.1:7890"
 
-from chatgpt_wrapper import ChatGPT
-
+# The model is queried through utils.ask(), which uses the modern OpenAI SDK,
+# configured via the OPENAI_API_KEY / OPENAI_BASE_URL / OPENAI_MODEL env vars.
 from utils import num_tokens_from_string, generate_state, ask
-# from chatgpt_wrapper.core.config import Config
-
-openai.api_key = ""
 
 PROMPT = """I will give you a batch of Excel task instructions that are utilized to evaluate the spreadsheet manipulation capabilities of large language models. Please check all instructions according to the criteria and the descriptions of the given workbooks.
 
@@ -65,7 +63,7 @@ def main():
     output_dir = os.path.join(data_path, "SU_adaptation_check")
     batch_size = 14
 
-    gpt_mode = ['wrapper', 'api', 'proxy'][2]
+    gpt_mode = 'api'
     debug = False
     bot = None
     if gpt_mode == 'wrapper':

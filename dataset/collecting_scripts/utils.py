@@ -1,6 +1,25 @@
 
-import tiktoken, openai, requests
+import os
+import tiktoken
+from openai import OpenAI
 encoding = tiktoken.encoding_for_model('gpt-3.5-turbo')
+
+# A single, reused client built from environment variables so these data-collection
+# scripts work with the official OpenAI API or any OpenAI-compatible endpoint:
+#   export OPENAI_API_KEY=sk-...                       # your key (or "EMPTY" for local servers)
+#   export OPENAI_BASE_URL=https://api.openai.com/v1   # or http://localhost:8000/v1, etc.
+#   export OPENAI_MODEL=gpt-4o-mini                    # optional; defaults to gpt-4o-mini
+_client = None
+
+
+def _get_client():
+    global _client
+    if _client is None:
+        _client = OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY", "EMPTY"),
+            base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+        )
+    return _client
 
 def num_tokens_from_string(string: str) -> int:
     """Returns the number of tokens in a text string."""
@@ -68,51 +87,22 @@ def generate_state(wb, use_col_detail=True):
     return ' '.join(state)
 
 
-def ask(input_text, gpt_mode, bot=None):
-    if gpt_mode == 'wrapper':
-        bot.new_conversation()
-        response_text = bot.ask(input_text)
-    elif gpt_mode == 'api':
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                    {"role": "system", "content": "You are an Excel expert."},
-                    {"role": "user", "content": input_text}
-                ],
-            n=1,
-            temperature = 0.0
-            )
-        response_text = response['choices'][0]['message']['content']
-    elif gpt_mode == 'proxy':
-        keys = [
-            {'url': 'https://api.openai-sb.com/v1/chat/completions',
-            'Authorization':'Bearer sb-139b0e3d71f238a0fbacc73adba5f09f0151c4848a93c80b'},
-            {'url': 'https://o-api-mirror01.gistmate.hash070.com/v1/chat/completions',
-            'Authorization':'Bearer sk-XWUkrLrPeUjqQ1k9ipAaHig4DgDyd2jhh09eVIVRwvhRTi5g'},
-            {'url': 'https://api.openai.com/v1/chat/completions',
-             'Authorization': 'Bearer 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'}
-        ]
+def ask(input_text, gpt_mode='api', bot=None):
+    """Query an OpenAI-compatible chat model with the modern OpenAI SDK.
 
-        sucess = False
-        while not sucess:
-            for prop in keys:
-                try:
-                    url = prop['url']
-                    headers = {'Content-Type':'application/json', 'Authorization':prop['Authorization']}
-                    data = {
-                        
-                        'model':'gpt-3.5-turbo',
-                        "messages": [{"role": "system", "content": "You are an Excel expert."},
-                                {"role": "user", "content": input_text}
-                                ]
-                    }
-                    response = requests.post(url, headers=headers, json=data, timeout=120).json()
-
-                    sucess = True
-                    break
-                except Exception as e:
-                    print("Time out. Change proxy...")
-        
-        response_text = response['choices'][0]['message']['content']
-    
-    return response_text
+    The legacy ``gpt_mode`` ('wrapper'/'api'/'proxy') and ``bot`` arguments are
+    kept for backward compatibility but ignored -- every call now goes through the
+    same modern client (configured via the OPENAI_* environment variables; see the
+    top of this module). Set the model with ``OPENAI_MODEL`` (default gpt-4o-mini).
+    """
+    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    response = _get_client().chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": "You are an Excel expert."},
+            {"role": "user", "content": input_text},
+        ],
+        n=1,
+        temperature=0.0,
+    )
+    return response.choices[0].message.content

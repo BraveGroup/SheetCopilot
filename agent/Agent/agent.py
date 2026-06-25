@@ -3,7 +3,7 @@ from typing import Tuple, List
 import time
 import re, os
 from colorama import Fore, Style
-from utils import ChatGPT, StateMachine
+from utils import ChatGPT, StateMachine, TrajectoryLogger
 import yaml
 import copy
 import os
@@ -53,6 +53,8 @@ class Agent:
 
         self.step = 1
         self.error_count = 0
+        # The most recent task attempt's trajectory (set by Instruction()).
+        self.last_trajectory = None
 
     def InitStateMachines(self) -> StateMachine:
 
@@ -69,6 +71,7 @@ class Agent:
             cycles_times += 1
             if cycles_times > self.max_cycle_times:
                 return 'fail', (chatbot, 'State 1', f'Too many cycles (> {self.max_cycle_times})')
+            chatbot.stage = 'coarse_planning'
             try:
                 response = await chatbot(prompt)
             except Exception as e:
@@ -80,7 +83,9 @@ class Agent:
                 return 'end', (chatbot,)
             # extract the function name
             coarse_function_names = re.findall(r'(?<=@)([A-Z].*?)\(.*?\)(?=@|\n|$)', response)
-            
+            if chatbot.logger is not None:
+                chatbot.logger.annotate_last(parsed_actions=list(coarse_function_names))
+
             print("Extracted API at coarse stage:", coarse_function_names)
             
             if 'Finish' in coarse_function_names: # 'Finish' is checked for ToolLLM
@@ -147,6 +152,7 @@ class Agent:
             if cycles_times > self.max_cycle_times:
                 return 'fail', (chatbot, 'State 3', f'Too many cycles ({self.max_cycle_times})')
 
+            chatbot.stage = 'fine_planning'
             try:
                 response = await chatbot(prompt)
             except Exception as e:
@@ -155,9 +161,11 @@ class Agent:
             log['context_log'].append(copy.deepcopy(chatbot.context))
             if 'Done' in response:
                 return 'end', (chatbot,)
-            
+
             # extract the function name
             fine_function_names = re.findall(r'(?<=@)([A-Z].*?)\(.*?\)(?=@|\n|$)', response)
+            if chatbot.logger is not None:
+                chatbot.logger.annotate_last(parsed_actions=list(fine_function_names))
 
             print("Extracted API at fine stage:", fine_function_names)
             
@@ -209,6 +217,10 @@ class Agent:
                 
             log['refined response'].append(functions)
             success, msg = self.Process(functions)
+            if chatbot.logger is not None:
+                chatbot.logger.annotate_last(executed_actions=functions,
+                                             execution_success=success,
+                                             execution_error=None if success else msg)
             if not success:
                 # go to failing process state
                 return 'execute_error', (chatbot, msg, prompt, base_prompt, coarse_function_names, context_index)
@@ -359,7 +371,8 @@ class Agent:
     
     async def ExtractActions(self, document: str) -> str:
         prompt = self.prompt['extract actions'].copy()
-        chatbot = ChatGPT(self.agent_config['ChatGPT_1' if self.use_same_LLM else 'ChatGPT_2'], prompt, interaction_mode=self.interaction_mode)
+        chatbot = ChatGPT(self.agent_config['ChatGPT_1' if self.use_same_LLM else 'ChatGPT_2'], prompt, interaction_mode=self.interaction_mode, logger=self.last_trajectory)
+        chatbot.stage = 'extract_actions'
         prompt = 'Document:\n' + document
         try:
             res = await chatbot(prompt)
@@ -394,9 +407,22 @@ class Agent:
         sheet_state = self.GetSheetState()
         print(50*'-' + '\n' + sheet_state + '\n' + 50*'-')
         prompt = prompt.format(context=context, instruction=instruction, sheet_state=sheet_state)
-        chatbot = ChatGPT(self.agent_config['ChatGPT_1'], base_prompt, interaction_mode=self.interaction_mode)
+
+        # Build a structured trajectory recorder for this attempt.
+        trajectory = TrajectoryLogger(meta={
+            'model': self.agent_config['ChatGPT_1'].get('model_name'),
+            'prompt_format': self.prompt_format,
+            'context': context,
+            'instruction': instruction,
+            'source_file': os.path.abspath(file) if file else None,
+            'result_file': os.path.abspath(savepath) if savepath else None,
+        })
+        chatbot = ChatGPT(self.agent_config['ChatGPT_1'], base_prompt,
+                          interaction_mode=self.interaction_mode, logger=trajectory)
         context_index = len(chatbot.context)
         success, log = await self.statemachine.run((chatbot, prompt, context_index))
+        trajectory.meta['success'] = success
+        self.last_trajectory = trajectory
         if savepath is not None:
             self._backend.SaveWorkbook(savepath)
             self._backend.activeWB.Close()
